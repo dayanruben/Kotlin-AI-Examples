@@ -17,7 +17,7 @@ class AIController(private val chatClient: ChatClient) {
                     chatClient.prompt()
                         .user(message)
                         .call()
-                        .content()
+                        .content()!!
         )
     }
 }

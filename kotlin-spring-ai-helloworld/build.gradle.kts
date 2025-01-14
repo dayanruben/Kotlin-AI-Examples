@@ -21,7 +21,7 @@ repositories {
     maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
-extra["springAiVersion"] = "1.0.0-M2"
+extra["springAiVersion"] = "1.0.0-M4"
 
 dependencyManagement {
     imports {
