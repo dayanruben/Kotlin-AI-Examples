@@ -18,13 +18,15 @@ repositories {
     mavenCentral()
 }
 
-val langchain4jVersion = "0.35.0"
+val langchain4jVersion = "1.0.0-alpha1"
+val langchain4jKotlinVersion = "0.1.7"
 val coroutinesVersion = "1.9.0"
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("me.kpavlov.langchain4j.kotlin:langchain4j-kotlin:$langchain4jKotlinVersion")
     implementation("dev.langchain4j:langchain4j-spring-boot-starter:$langchain4jVersion")
     implementation("dev.langchain4j:langchain4j-open-ai-spring-boot-starter:$langchain4jVersion")
     implementation("dev.langchain4j:langchain4j-reactor:$langchain4jVersion")
