@@ -60,11 +60,11 @@ class RagService(
         val prompt = Prompt(listOf(systemMessage, userMessage))
         logger.info(prompt.toString())
 
-        val chatResponse = chatClient.prompt(prompt).call().chatResponse()
+        val chatResponse = chatClient.prompt(prompt).call().chatResponse()!!
         logger.info("AI responded.")
 
         logger.info(chatResponse.result.output.content)
-        return chatResponse.result.output
+        return chatResponse.result.output!!
     }
 
     private fun getSystemMessage(similarDocuments: List<Document>): Message {

@@ -18,6 +18,6 @@ class OutputParserController(private val chatClient: ChatClient) {
         val promptTemplate = PromptTemplate(userMessage, mapOf("actor" to actor))
         val prompt = promptTemplate.create()
         val generation = chatClient.prompt(prompt).call().entity<ActorsFilms>(ActorsFilms::class.java)
-        return generation
+        return generation!!
     }
 }

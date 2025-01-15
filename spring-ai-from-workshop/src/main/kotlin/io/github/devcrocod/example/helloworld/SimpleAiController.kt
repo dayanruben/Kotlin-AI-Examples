@@ -12,6 +12,6 @@ class SimpleAiController(private val chatClient: ChatClient) {
     fun generation(
         @RequestParam(value = "message", defaultValue = "Tell me a joke") message: String
     ): Map<String, String> {
-        return mapOf("generation" to chatClient.prompt().user(message).call().content())
+        return mapOf("generation" to chatClient.prompt().user(message).call().content()!!)
     }
 }

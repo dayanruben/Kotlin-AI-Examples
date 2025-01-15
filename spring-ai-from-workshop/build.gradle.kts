@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.0.20"
-    kotlin("plugin.spring") version "2.0.20"
+    kotlin("jvm") version "2.1.20-Beta1"
+    kotlin("plugin.spring") version "2.1.20-Beta1"
     id("org.springframework.boot") version "3.3.4"
     id("io.spring.dependency-management") version "1.1.6"
 }
@@ -20,7 +20,7 @@ repositories {
     maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
-extra["springAiVersion"] = "1.0.0-M3"
+extra["springAiVersion"] = "1.0.0-M4"
 
 dependencyManagement {
     imports {
