@@ -1,10 +1,11 @@
 package io.github.devcrocod.example.playground.services
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.devcrocod.example.playground.data.BookingStatus
+import io.github.devcrocod.example.playground.services.BookingTools.BookingDetails
+import io.github.devcrocod.example.playground.services.BookingTools.BookingDetailsRequest
+import io.github.devcrocod.example.playground.services.BookingTools.Companion.logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -23,37 +24,36 @@ class BookingTools {
     @Autowired
     private lateinit var flightBookingService: FlightBookingService
 
-    data class BookingDetailsRequest @JsonCreator constructor(
-        @JsonProperty("bookingNumber") val bookingNumber: String,
-        @JsonProperty("firstName") val firstName: String,
-        @JsonProperty("lastName") val lastName: String
+    data class BookingDetailsRequest constructor(
+        val bookingNumber: String,
+        val firstName: String,
+        val lastName: String
     )
 
-    data class ChangeBookingDatesRequest @JsonCreator constructor(
-        @JsonProperty("bookingNumber") val bookingNumber: String,
-        @JsonProperty("firstName") val firstName: String,
-        @JsonProperty("lastName") val lastName: String,
-        @JsonProperty("date") val date: String,
-        @JsonProperty("from") val from: String,
-        @JsonProperty("to") val to: String
+    data class ChangeBookingDatesRequest constructor(
+        val bookingNumber: String,
+        val firstName: String,
+        val lastName: String,
+        val date: String,
+        val from: String,
+        val to: String
     )
 
-    data class CancelBookingRequest @JsonCreator constructor(
-        @JsonProperty("bookingNumber") val bookingNumber: String,
-        @JsonProperty("firstName") val firstName: String,
-        @JsonProperty("lastName") val lastName: String
+    data class CancelBookingRequest constructor(
+        val bookingNumber: String,
+        val firstName: String,
+        val lastName: String
     )
 
-    @JsonInclude(Include.NON_NULL)
-    data class BookingDetails @JsonCreator constructor(
-        @JsonProperty("bookingNumber") val bookingNumber: String,
-        @JsonProperty("firstName") val firstName: String,
-        @JsonProperty("lastName") val lastName: String,
-        @JsonProperty("date") val date: LocalDate?,
-        @JsonProperty("bookingStatus") val bookingStatus: BookingStatus?,
-        @JsonProperty("from") val from: String?,
-        @JsonProperty("to") val to: String?,
-        @JsonProperty("bookingClass") val bookingClass: String?
+    data class BookingDetails constructor(
+        val bookingNumber: String,
+        val firstName: String,
+        val lastName: String,
+        val date: LocalDate?,
+        val bookingStatus: BookingStatus?,
+        val from: String?,
+        val to: String?,
+        val bookingClass: String?
     )
 
     @Bean
