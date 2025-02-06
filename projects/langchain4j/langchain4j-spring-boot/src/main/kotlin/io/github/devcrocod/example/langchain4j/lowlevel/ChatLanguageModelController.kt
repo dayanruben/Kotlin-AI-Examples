@@ -14,5 +14,5 @@ class ChatLanguageModelController(private val chatLanguageModel: ChatLanguageMod
     @GetMapping("/model")
     fun model(
         @RequestParam(value = "message", defaultValue = "Hello") message: String
-    ): String = chatLanguageModel.generate(message)
+    ): String = chatLanguageModel.chat(message)
 }
