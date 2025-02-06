@@ -6,28 +6,38 @@ repository. It demonstrates how to use `langchain4j` with Spring Boot in a Kotli
 
 ## Requirements
 
-- Java 17
-- Kotlin 2.0.x
-- Gradle
+- Java 17 or higher
+- Kotlin 2.0.x or higher
+- Gradle 8.x or higher
+- OpenAI API key (set as environment variable OPENAI_API_KEY)
+- IDE with Kotlin support (IntelliJ IDEA recommended)
+- Git for version control
 
 ## Technologies Used
 
 - Spring Boot 3.2.4
+  - spring-boot-starter-web
+  - spring-boot-starter-webflux
+- Kotlin 2.0.x
+  - kotlinx-coroutines-reactor
+  - kotlin-reflect
 - Langchain4j 0.35.0
-- OpenAI API integration using `langchain4j-open-ai-spring-boot-starter`
-- WebFlux for asynchronous interaction
+  - langchain4j-spring-boot-starter
+  - langchain4j-open-ai-spring-boot-starter
+- OpenAI API integration
+- WebFlux for reactive programming
 - Kotlin Coroutines for asynchronous programming
 
 ## Running the Project
 
 1. Clone the repository:
     ```bash
-    git clone <URL of your repository>
+    git clone https://github.com/devcrocod/kotlin-ai-examples.git
     ```
 
 2. Navigate to the project directory:
     ```bash
-    cd <project-directory>
+    cd kotlin-ai-examples/projects/langchain4j/langchain4j-spring-boot
     ```
 
 3. Build and run the project using Gradle:
