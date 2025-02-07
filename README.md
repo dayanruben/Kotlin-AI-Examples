@@ -80,3 +80,9 @@ the examples.
 <p align="center">
   ⭐ If you enjoy this repository, please give it a star!
 </p>
+
+---
+
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE).
