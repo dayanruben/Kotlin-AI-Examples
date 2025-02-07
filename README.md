@@ -1,60 +1,82 @@
-# Kotlin AI Examples
+# <img src="https://raw.githubusercontent.com/devcrocod/Kotlin-AI-Examples/img/kotlin_icon.svg" width="30"/> Kotlin <img src="https://raw.githubusercontent.com/devcrocod/Kotlin-AI-Examples/img/kotlin_icon.svg" width="30"/> AI Examples
 
-This repository contains examples of using various AI frameworks with Kotlin.
+**Kotlin AI Examples** is a repository showcasing various AI frameworks integrated into Kotlin-based projects.  
+Here you’ll find ready-to-use examples for Spring AI, LangChain4j, as well as interactive Kotlin notebooks.
 
-## Repository Structure
+---
 
-The repository is organized into two main sections:
+## Contents
 
-### Kotlin Projects ([`/projects`](projects))
+<table>
+  <tr>
+    <td><img src="img/kotlin_icon.svg" width="15" alt=""/> <a href="#kotlin-projects-projects">Kotlin Projects</a></td>
+    <td><img src="img/ktn_plugin_icon.svg" width="15" alt=""/> <a href="#kotlin-notebooks-notebooks">Kotlin Notebooks</a></td>
+    <td><a href="#getting-started">🚀 Getting Started</a></td>
+    <td><a href="#prerequisites">⚙ Prerequisites</a></td>
+  </tr>
+</table>
 
-Contains complete Kotlin projects demonstrating AI integration:
+---
 
-#### Spring AI Examples ([`/projects/spring-ai`](projects/spring-ai))
+## Kotlin Projects ([`/projects`](projects))
 
-- [**helloworld**](projects/spring-ai/helloworld): Basic example of using Spring AI
-- [**spring-ai-examples**](projects/spring-ai/spring-ai-examples): Comprehensive collection of Spring AI feature
+This section contains complete Kotlin projects demonstrating AI integrations.
+
+### Spring AI Examples ([`/projects/spring-ai`](projects/spring-ai))
+
+- **[helloworld](projects/spring-ai/helloworld)**: Basic example of using Spring AI
+- **[spring-ai-examples](projects/spring-ai/spring-ai-examples)**: A comprehensive set of Spring AI feature
   demonstrations and examples
-- [**playground-flight-booking**](projects/spring-ai/playground-flight-booking): AI-powered Expert System Demo using
-  various AI providers (OpenAI, VertexAI Gemini, Azure OpenAI, Groq, and Anthropic Claude)
+- **[playground-flight-booking](projects/spring-ai/playground-flight-booking)**: An AI-powered flight booking system
+  demo using multiple providers (OpenAI, VertexAI Gemini, Azure OpenAI, Groq, Anthropic Claude)
 
-#### LangChain4j Examples ([`/projects/langchain4j`](projects/langchain4j))
+### LangChain4j Examples ([`/projects/langchain4j`](projects/langchain4j))
 
-- [**langchain4j-spring-boot**](projects/langchain4j/langchain4j-spring-boot): Examples of using LangChain4j with Kotlin
+- **[langchain4j-spring-boot](projects/langchain4j/langchain4j-spring-boot)**: Examples of using LangChain4j with Kotlin
   and Spring
 
-### Kotlin Notebooks ([`/notebooks`](notebooks))
+---
 
-Contains Kotlin Jupyter notebooks with interactive examples and tutorials, organized by project:
+## Kotlin Notebooks ([`/notebooks`](notebooks))
 
-#### Spring AI Kotlin Notebooks ([`/notebooks/spring-ai`](notebooks/spring-ai))
+A collection of interactive Jupyter notebooks in Kotlin, organized by project.
 
-Interactive notebooks demonstrating Spring AI capabilities:
-
-- Coming soon...
-
-#### LangChain4j Kotlin Notebooks ([`/notebooks/langchain4j`](notebooks/langchain4j))
-
-Interactive notebooks for LangChain4j examples:
+### Spring AI Kotlin Notebooks ([`/notebooks/spring-ai`](notebooks/spring-ai))
 
 - Coming soon...
 
-#### Agents ReaCtor (ARC) Kotlin Notebooks ([`/notebooks/arc`](notebooks/arc))
+### LangChain4j Kotlin Notebooks ([`/notebooks/langchain4j`](notebooks/langchain4j))
 
-Interactive notebooks demonstrating ARC capabilities:
+- Coming soon...
 
-- [**WeatherAgent**](notebooks/arc/WeatherAgent.ipynb): Example of creating an agent that retrieves real-time weather
-  data for a given location using WeatherAPI
-- [**SummarizerAgent**](notebooks/arc/SummarizerAgent.ipynb): Example of creating an agent that summarizes web pages
-  content (like blog posts) by processing HTML and generating concise summaries
+### Agents ReaCtor (ARC) Kotlin Notebooks ([`/notebooks/arc`](notebooks/arc))
+
+- **[WeatherAgent.ipynb](notebooks/arc/WeatherAgent.ipynb)**: Demonstrates creating an agent that retrieves real-time
+  weather data for a specified location via WeatherAPI
+- **[SummarizerAgent.ipynb](notebooks/arc/SummarizerAgent.ipynb)**: Demonstrates creating an agent that summarizes web
+  pages (e.g., blog posts) by processing HTML and generating concise summaries
+
+---
 
 ## Getting Started
 
-Each project in the respective directories contains its own README with specific instructions on how to run and use the
-examples.
+Each project in the [`projects`](projects) directory has its own README with detailed instructions on how to run and use
+the examples.
+
+---
 
 ## Prerequisites
 
 - Java 17+
 - Kotlin
-- Specific API keys depending on the AI provider you want to use (check individual project READMEs for details)
+- Appropriate AI provider API keys (see each project’s README for more details)
+
+---
+
+> **Note**  
+> Make sure you have the necessary access credentials for your chosen AI service (OpenAI, Azure, VertexAI, etc.) and the
+> required dependencies in your build scripts (Gradle/Maven).
+
+<p align="center">
+  ⭐ If you enjoy this repository, please give it a star!
+</p>
