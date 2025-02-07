@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/devcrocod/Kotlin-AI-Examples/img/kotlin_icon.svg" width="30"/> Kotlin <img src="https://raw.githubusercontent.com/devcrocod/Kotlin-AI-Examples/img/kotlin_icon.svg" width="30"/> AI Examples
+# <img src="https://raw.githubusercontent.com/devcrocod/Kotlin-AI-Examples/refs/heads/master/img/kotlin_icon.svg" width="30"/> Kotlin <img src="https://raw.githubusercontent.com/devcrocod/Kotlin-AI-Examples/refs/heads/master/img/AI_icon.svg" width="30"/> AI Examples
 
 **Kotlin AI Examples** is a repository showcasing various AI frameworks integrated into Kotlin-based projects.  
 Here you’ll find ready-to-use examples for Spring AI, LangChain4j, as well as interactive Kotlin notebooks.
