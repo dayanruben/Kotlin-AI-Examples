@@ -47,14 +47,27 @@ A collection of interactive Jupyter notebooks in Kotlin, organized by project.
 
 ### LangChain4j Kotlin Notebooks ([`/notebooks/langchain4j`](notebooks/langchain4j))
 
-- Coming soon...
+- **[SummarizingDocuments.ipynb](notebooks/langchain4j/SummarizingDocuments.ipynb)**: demonstrates how to split large
+  text documents into smaller chunks, summarize each chunk with an AI model, and then merge the summaries into a concise
+  final result.
 
 ### Agents ReaCtor (ARC) Kotlin Notebooks ([`/notebooks/arc`](notebooks/arc))
 
-- **[WeatherAgent.ipynb](notebooks/arc/WeatherAgent.ipynb)**: Demonstrates creating an agent that retrieves real-time
+- **[WeatherAgent.ipynb](notebooks/arc/WeatherAgent.ipynb)**: demonstrates creating an agent that retrieves real-time
   weather data for a specified location via WeatherAPI
-- **[SummarizerAgent.ipynb](notebooks/arc/SummarizerAgent.ipynb)**: Demonstrates creating an agent that summarizes web
+- **[SummarizerAgent.ipynb](notebooks/arc/SummarizerAgent.ipynb)**: demonstrates creating an agent that summarizes web
   pages (e.g., blog posts) by processing HTML and generating concise summaries
+
+### KInference Kotlin Notebooks ([`/notebooks/kInference`](notebooks/kinference))
+
+- **[KIClassification.ipynb](notebooks/kinference/KIClassification.ipynb)**: how to set up a classification environment
+  using the KIEngine framework, manage cached data files, and perform inference on input data.
+- **[KIGPT2.ipynb](notebooks/kinference/KIGPT2.ipynb)**: how to configure and run a GPT-2 model with KIEngine, handling
+  tokenization, caching, and text generation.
+- **[ORTClassification.ipynb](notebooks/kinference/ORTClassification.ipynb)**: how to perform classification using
+  ORT-based inference, handling data loading, caching, and model execution steps.
+- **[ORTGPT2.ipynb](notebooks/kinference/ORTGPT2.ipynb)**: how to run GPT-2 inference using the ORT engine, handling
+  tokenization, caching, and generation of text outputs.
 
 ---
 
