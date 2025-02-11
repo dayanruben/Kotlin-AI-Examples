@@ -71,6 +71,10 @@ A collection of interactive Jupyter notebooks in Kotlin, organized by project.
 - **[ORTGPT2.ipynb](notebooks/kinference/ORTGPT2.ipynb)**: how to run GPT-2 inference using the ORT engine, handling
   tokenization, caching, and generation of text outputs.
 
+### xef.ai Kotlin Notebooks ([`/notebooks/xefAI`](notebooks/xefAI))
+
+- **[xefAI_Overview.ipynb](notebooks/xefAI/xefAI_Overview.ipynb)**: xef.ai overview notebook
+
 ---
 
 ## Getting Started
