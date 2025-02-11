@@ -43,11 +43,11 @@ A collection of interactive Jupyter notebooks in Kotlin, organized by project.
 
 ### Spring AI Kotlin Notebooks ([`/notebooks/spring-ai`](notebooks/spring-ai))
 
-- Coming soon...
+- **[SpringAI_Overview.ipynb](notebooks/spring-ai/SpringAI_Overview.ipynb)**: overview of Spring AI with Kotlin
 
 ### LangChain4j Kotlin Notebooks ([`/notebooks/langchain4j`](notebooks/langchain4j))
 
-- **[La[LangChain4j_Overview.ipynb](notebooks/langchain4j/LangChain4j_Overview.ipynb)]**: overview of LangChain4j with
+- **[LangChain4j_Overview.ipynb](notebooks/langchain4j/LangChain4j_Overview.ipynb)**: overview of LangChain4j with
   Kotlin, demonstrating how to work with chat models, manage prompts, streaming, and produce structured responses.
 - **[SummarizingDocuments.ipynb](notebooks/langchain4j/SummarizingDocuments.ipynb)**: demonstrates how to split large
   text documents into smaller chunks, summarize each chunk with an AI model, and then merge the summaries into a concise
