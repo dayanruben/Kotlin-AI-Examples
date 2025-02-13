@@ -29,6 +29,7 @@ This section contains complete Kotlin projects demonstrating AI integrations.
   demonstrations and examples
 - **[playground-flight-booking](projects/spring-ai/playground-flight-booking)**: An AI-powered flight booking system
   demo using multiple providers (OpenAI, VertexAI Gemini, Azure OpenAI, Groq, Anthropic Claude)
+- **[spring-ai-mcp-server-example](projects/spring-ai/spring-ai-mcp-server-example)**: spring mcp server sample
 
 ### LangChain4j Examples ([`/projects/langchain4j`](projects/langchain4j))
 
