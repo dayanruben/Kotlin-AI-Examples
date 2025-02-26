@@ -55,6 +55,7 @@ In this section, we'll explore how to create a server that:
 - **_Gradle_**
 - **_npx_** for testing with the MCP Inspector
 - **_API key_** for retrieving data from [Financial Modeling Prep](https://site.financialmodelingprep.com/)
+  
   > [!TIP]
   > You can get a free API key after registration, with a limit of **250 requests per day**.
 
@@ -80,7 +81,7 @@ Let's outline the general plan for creating an MCP server:
 Since we will be developing both the server and the client using Compose, the easiest way to create project is by
 using the [**Kotlin Multiplatform Wizard**](https://kmp.jetbrains.com/)
 
-<img src="image/wizard.png" alt="Kotlin Wizard" align="center" style="width: 75%; height: auto; border-radius: 10px;">
+<img src="image/wizard.png" alt="Kotlin Wizard" width="720" height="660" style="border-radius: 10px;">
 
 > [!NOTE]
 > You can use any other Kotlin wizard to create the project or run `gradle init` and follow the instructions in the next steps.
