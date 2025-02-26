@@ -469,7 +469,6 @@ fun `run sse mcp server`(port: Int): Unit = runBlocking {
         routing {
             sse("/sse") {
                 val transport = SSEServerTransport("/message", this)
-                send("endpoint", "/message")
 
                 servers[transport.sessionId] = server
 
@@ -479,7 +478,7 @@ fun `run sse mcp server`(port: Int): Unit = runBlocking {
 
                 server.connect(transport)
             }
-            post("/sse/message") {
+            post("/message") {
                 val sessionId: String = call.request.queryParameters["sessionId"]!!
                 val transport = servers[sessionId]?.transport as? SSEServerTransport
                 if (transport == null) {
