@@ -1,7 +1,8 @@
 # MCP Kotlin SDK Tutorial
 
 In this tutorial, we will explore the Model Context Protocol (MCP) with Kotlin in action. \
-We will write an MCP server that will receive stock data from [Financial Modeling Prep (FMP)](https://site.financialmodelingprep.com/),
+We will write an MCP server that will receive stock data
+from [Financial Modeling Prep (FMP)](https://site.financialmodelingprep.com/),
 connect our server to Claude for Desktop, and then develop our own client using OpenAI and our server.
 
 <p align="center">
@@ -18,8 +19,9 @@ connect our server to Claude for Desktop, and then develop our own client using 
 
 * [**Introduction**](#introduction) — brief explanation of MCP and overview of what will build
 * [**Building the MCP Server**](#building-the-mcp-server) — developing the MCP server to fetch stock data from FMP
-* [**Connecting to Claude for Desktop**](#3-claude-for-desktop) — integrating the MCP server with Claude for Desktop
-* [**Client**](#4-client) — Creating a client using OpenAI
+* [**Connecting to Claude for Desktop**](#connecting-to-claude-for-desktop) — integrating the MCP server with Claude for
+  Desktop
+* [**Client**](#compose-client) — Creating a client using OpenAI
 
 ---
 
@@ -27,6 +29,7 @@ connect our server to Claude for Desktop, and then develop our own client using 
 
 [**Model Context Protocol (MCP)**](https://modelcontextprotocol.io/introduction) is a protocol that allows external
 tools (servers) to connect to LLMs (models like Claude or GPT), extending their capabilities by enabling:
+
 - Fetching **Resources** from external sources (APIs, files, etc)
 - Calling functions (**Tools**) that can be written in any language and perform useful actions
 - Using predefined templates (**Prompts**) for structured interactions
@@ -44,35 +47,37 @@ Below is a simple diagram illustrating what we weill build in this tutorial:
 Let's implement MCP server with FMP, which can be used with Claude for Desktop or any other clients
 
 In this section, we'll explore how to create a server that:
+
 - **Provides tools** for performing specific tasks:
-  - `get-current-price` — retrieves the current stock price
-  - `get-historical-price` — fetches key stock metrics (_open_, _close_, _high_, _low_)
-    by day starting from a specified date
+    - `get-current-price` — retrieves the current stock price
+    - `get-historical-price` — fetches key stock metrics (_open_, _close_, _high_, _low_)
+      by day starting from a specified date
 - **Runs locally and is tested using MCP Inspector** to verify its functionality
 
 ### Requirements
+
 - **_JDK 17_** or higher
 - **_Gradle_**
 - **_npx_** for testing with the MCP Inspector
 - **_API key_** for retrieving data from [Financial Modeling Prep](https://site.financialmodelingprep.com/)
-  
+
   > [!TIP]
   > You can get a free API key after registration, with a limit of **250 requests per day**.
 
-### Plan 
+### Plan
 
 Let's outline the general plan for creating an MCP server:
 
 1. **Project initialization**
-   - Create a project using web wizard or `gradle init`
-   - Configure project
-   - Add the necessary dependencies
+    - Create a project using web wizard or `gradle init`
+    - Configure project
+    - Add the necessary dependencies
 2. **Define the tooling**
-   - Create data classes for FMP
-   - Implement functions for making REST request to FMP
+    - Create data classes for FMP
+    - Implement functions for making REST request to FMP
 3. **Server implementation**
-   - Configure the server and integrate the tooling
-   - Set up transport — in our case, it will be **_stdio_** and **_SSE_**
+    - Configure the server and integrate the tooling
+    - Set up transport — in our case, it will be **_stdio_** and **_SSE_**
 4. **Build and run**
 5. **Manual testing with MCP Inspector**
 
@@ -84,11 +89,13 @@ using the [**Kotlin Multiplatform Wizard**](https://kmp.jetbrains.com/)
 <img src="image/wizard.png" alt="Kotlin Wizard" width="720" height="660" align="center" style="border-radius: 10px;">
 
 > [!NOTE]
-> You can use any other Kotlin wizard to create the project or run `gradle init` and follow the instructions in the next steps.
+> You can use any other Kotlin wizard to create the project or run `gradle init` and follow the instructions in the next
+> steps.
 
 In the generated project, we will need a **server module**. Let's configure it.
 
 First, we need to add the following dependencies:
+
 ```kotlin
 dependencies {
     implementation("io.modelcontextprotocol:kotlin-sdk:$mcp_kotlin_version") // mcp kotlin-sdk
@@ -96,9 +103,11 @@ dependencies {
 }
 ```
 
-Since we will be fetching data from FMP via REST, we need an **HTTP client** and a **serialization library** to handle JSON.
+Since we will be fetching data from FMP via REST, we need an **HTTP client** and a **serialization library** to handle
+JSON.
 
 For this, we will use **Ktor** and **kotlinx-serialization**:
+
 ```kotlin
 dependencies {
     implementation("io.ktor:ktor-client-core:$ktor_version")
@@ -110,9 +119,10 @@ dependencies {
 ```
 
 For kotlinx-serialization, need to add the following plugin:
+
 ```kotlin
 plugins {
-   kotlin("plugin.serialization") version kotlin_version
+    kotlin("plugin.serialization") version kotlin_version
 }
 ```
 
@@ -124,11 +134,11 @@ plugins {
 }
 
 tasks.shadowJar {
-   archiveFileName.set("serverAll.jar")
-   archiveClassifier.set("")
-   manifest {
-      attributes["Main-Class"] = "org.example.MainKt"
-   }
+    archiveFileName.set("serverAll.jar")
+    archiveClassifier.set("")
+    manifest {
+        attributes["Main-Class"] = "org.example.MainKt"
+    }
 }
 ```
 
@@ -136,49 +146,48 @@ In the end, your Gradle build script will look something like this if you are us
 
 ```kotlin
 plugins {
-   alias(libs.plugins.kotlinJvm) // Apply the Kotlin JVM plugin
-   alias(libs.plugins.kotlin.serialization) // Apply Kotlinx Serialization
-   alias(libs.plugins.shadow) // Apply the Shadow plugin for creating a fat JAR
-   application // Mark this as an application project
+    alias(libs.plugins.kotlinJvm) // Apply the Kotlin JVM plugin
+    alias(libs.plugins.kotlin.serialization) // Apply Kotlinx Serialization
+    alias(libs.plugins.shadow) // Apply the Shadow plugin for creating a fat JAR
+    application // Mark this as an application project
 }
 
 repositories {
-   mavenCentral() // Use Maven Central as the dependency repository
+    mavenCentral() // Use Maven Central as the dependency repository
 }
 
 dependencies {
-   implementation(libs.mcp.kotlin) // MCP Kotlin library
-   implementation(libs.slf4j) // Logging with SLF4J
-   implementation(libs.ktor.client.core) // Ktor core HTTP client
-   implementation(libs.ktor.client.okhttp) // OkHttp engine for Ktor
-   implementation(libs.ktor.client.content.negotation) // Content negotiation for serialization
-   implementation(libs.ktor.client.serialization) // JSON serialization for Ktor
-   implementation(libs.ktor.client.logging) // HTTP request/response logging
+    implementation(libs.mcp.kotlin) // MCP Kotlin library
+    implementation(libs.slf4j) // Logging with SLF4J
+    implementation(libs.ktor.client.core) // Ktor core HTTP client
+    implementation(libs.ktor.client.okhttp) // OkHttp engine for Ktor
+    implementation(libs.ktor.client.content.negotation) // Content negotiation for serialization
+    implementation(libs.ktor.client.serialization) // JSON serialization for Ktor
+    implementation(libs.ktor.client.logging) // HTTP request/response logging
 }
 
 java {
-   toolchain {
-      languageVersion = JavaLanguageVersion.of(17) // Ensure Java 17+ is used
-   }
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17) // Ensure Java 17+ is used
+    }
 }
 
 application {
-   mainClass = "io.github.devcrocod.example.MainKt" // Define the main entry point
+    mainClass = "io.github.devcrocod.example.MainKt" // Define the main entry point
 }
 
 tasks.shadowJar {
-   archiveFileName.set("serverAll.jar") // Set the output JAR file name
-   archiveClassifier.set("") // Ensure no additional classifier is added
-   manifest {
-      attributes["Main-Class"] = "io.github.devcrocod.example.MainKt" // Set the main class in the manifest
-   }
+    archiveFileName.set("serverAll.jar") // Set the output JAR file name
+    archiveClassifier.set("") // Ensure no additional classifier is added
+    manifest {
+        attributes["Main-Class"] = "io.github.devcrocod.example.MainKt" // Set the main class in the manifest
+    }
 }
 
 tasks.named<Test>("test") {
-   useJUnitPlatform() // Use JUnit Platform for unit tests.
+    useJUnitPlatform() // Use JUnit Platform for unit tests.
 }
 ```
-
 
 ### Building server
 
@@ -188,46 +197,47 @@ and [`historical-price-full`](https://site.financialmodelingprep.com/developer/d
 to retrieve stock data and historical stock data, respectively.\
 Let’s examine the responses and create the corresponding data classes,
 annotating them with `@Serializable` to enable JSON deserialization into our classes:
+
 ```kotlin
 // Response for the quote/symbol request
 @Serializable
 data class Quote(
-   val symbol: String, // Stock symbol (e.g., AAPL, TSLA)
-   val name: String, // Company name
-   val price: Double, // Current stock price
-   val changesPercentage: Double, // Percentage change in price
-   val dayLow: Double, // Lowest price of the day
-   val dayHigh: Double, // Highest price of the day
-   val yearHigh: Double, // Highest price in the past year
-   val yearLow: Double, // Lowest price in the past year
-   val marketCap: Long, // Market capitalization
-   val priceAvg50: Double, // 50-day average price
-   val priceAvg200: Double, // 200-day average price
-   val exchange: String, // Stock exchange name
-   val volume: Long, // Trading volume
-   val open: Double, // Opening price of the day
-   val previousClose: Double, // Closing price from the previous day
-   val eps: Double, // Earnings per share
-   val pe: Double, // Price-to-earnings ratio
-   val earningsAnnouncement: String, // Upcoming earnings announcement date
-   val sharesOutstanding: Long, // Total number of outstanding shares
-   val timestamp: Long // Data timestamp (UNIX format)
+    val symbol: String, // Stock symbol (e.g., AAPL, TSLA)
+    val name: String, // Company name
+    val price: Double, // Current stock price
+    val changesPercentage: Double, // Percentage change in price
+    val dayLow: Double, // Lowest price of the day
+    val dayHigh: Double, // Highest price of the day
+    val yearHigh: Double, // Highest price in the past year
+    val yearLow: Double, // Lowest price in the past year
+    val marketCap: Long, // Market capitalization
+    val priceAvg50: Double, // 50-day average price
+    val priceAvg200: Double, // 200-day average price
+    val exchange: String, // Stock exchange name
+    val volume: Long, // Trading volume
+    val open: Double, // Opening price of the day
+    val previousClose: Double, // Closing price from the previous day
+    val eps: Double, // Earnings per share
+    val pe: Double, // Price-to-earnings ratio
+    val earningsAnnouncement: String, // Upcoming earnings announcement date
+    val sharesOutstanding: Long, // Total number of outstanding shares
+    val timestamp: Long // Data timestamp (UNIX format)
 )
 
 // Response for the historical-price-full/symbol request
 @Serializable
 data class HistoricalPrice(
-   val symbol: String, // Stock symbol
-   val historical: List<Historical> // List of historical stock data
+    val symbol: String, // Stock symbol
+    val historical: List<Historical> // List of historical stock data
 )
 
 @Serializable
 data class Historical(
-   val date: String, // Date of the record
-   val open: Double, // Opening price on that day
-   val high: Double, // Highest price on that day
-   val low: Double, // Lowest price on that day
-   val close: Double // Closing price on that day
+    val date: String, // Date of the record
+    val open: Double, // Opening price on that day
+    val high: Double, // Highest price on that day
+    val low: Double, // Lowest price on that day
+    val close: Double // Closing price on that day
 )
 ```
 
@@ -261,25 +271,26 @@ suspend fun HttpClient.getCurrentPrice(symbol: String): Quote? {
  * @return A [HistoricalPrice] object containing the historical price data for the specified symbol, or null if the data could not be retrieved.
  */
 suspend fun HttpClient.getHistoricalPrice(symbol: String, from: String? = null, to: String? = null): HistoricalPrice? {
-   val response = this.get("historical-price-full/${symbol.uppercase()}") {
-      url {
-         with(parameters) {
-            from?.let { append("from", it) }
-            to?.let { append("to", it) }
-            append("apikey", fmpApiKey)
-         }
-      }
-   }.takeIf { it.status == HttpStatusCode.OK } ?: run {
-      System.err.println("Failed to retrieve data for $symbol")
-      null
-   }
+    val response = this.get("historical-price-full/${symbol.uppercase()}") {
+        url {
+            with(parameters) {
+                from?.let { append("from", it) }
+                to?.let { append("to", it) }
+                append("apikey", fmpApiKey)
+            }
+        }
+    }.takeIf { it.status == HttpStatusCode.OK } ?: run {
+        System.err.println("Failed to retrieve data for $symbol")
+        null
+    }
 
-   return response?.body<HistoricalPrice>()
+    return response?.body<HistoricalPrice>()
 }
 ```
 
 You’ll need an API key for FMP here.
-You can get a free API key after registration, add it to your environment variables, and use it in your code: 
+You can get a free API key after registration, add it to your environment variables, and use it in your code:
+
 ```kotlin
 private val fmpApiKey = System.getenv("FMP_API_KEY") ?: error("FMP_API_KEY environment variable is not set")
 ```
@@ -290,7 +301,7 @@ Let’s configure the server:
 ```kotlin
 fun configureServer(): Server {
     val def = CompletableDeferred<Unit>()
-   
+
     val httpClient = HttpClient {
         ... // Define our HttpClient for interacting with FMP
     }
@@ -310,11 +321,11 @@ fun configureServer(): Server {
         )
     ) { def.complete(Unit) }
 
-   //  Add the tool
+    //  Add the tool
     server.addTool(
-        name = , // Tool name
-        description = , // Tool description. This provides the necessary context for the LLM about what the tool does.
-        inputSchema = , // Function input schema
+        name =, // Tool name
+        description =, // Tool description. This provides the necessary context for the LLM about what the tool does.
+        inputSchema =, // Function input schema
     ) { request ->
         ... // Tool execution logic
     }
@@ -327,9 +338,9 @@ Adding our two functions as Tools:
 
 ```kotlin
     // Add the tool for the `getCurrentPrice` function
-    server.addTool(
-        name = "get-current-price",
-        description = """
+server.addTool(
+    name = "get-current-price",
+    description = """
             The full-quote quote endpoint provides the latest bid and ask prices for a stock,
             as well as the volume and last trade price.
             Investors can use this information to get a sense of what a stock is trading at in real time and to make informed investment decisions.
@@ -337,41 +348,41 @@ Adding our two functions as Tools:
             For example, an investor may want to use the full-quote quote endpoint to get a sense of what a stock is trading at before placing a trade.
             Or, an investor may want to use the full-quote quote endpoint to track the performance of a stock over time.
         """.trimIndent(),
-        inputSchema = Tool.Input(
-            properties = JsonObject(mapOf("symbol" to JsonPrimitive("string"))),
-            required = listOf("symbol")
+    inputSchema = Tool.Input(
+        properties = JsonObject(mapOf("symbol" to JsonPrimitive("string"))),
+        required = listOf("symbol")
+    )
+) { request ->
+    val symbol = request.arguments["symbol"] // Retrieve the symbol
+    if (symbol == null) {
+        return@addTool CallToolResult(
+            content = listOf(TextContent("The 'symbol' parameter is required."))
         )
-    ) { request ->
-        val symbol = request.arguments["symbol"] // Retrieve the symbol
-        if (symbol == null) {
-            return@addTool CallToolResult(
-                content = listOf(TextContent("The 'symbol' parameter is required."))
-            )
-        }
-       // Call getCurrentPrice with the retrieved symbol
-        val price = httpClient.getCurrentPrice(symbol.jsonPrimitive.content) 
-        if (price != null) { // If a result is available, return it as text
-            CallToolResult(
-                content = listOf(
-                    TextContent(
-                        """
+    }
+    // Call getCurrentPrice with the retrieved symbol
+    val price = httpClient.getCurrentPrice(symbol.jsonPrimitive.content)
+    if (price != null) { // If a result is available, return it as text
+        CallToolResult(
+            content = listOf(
+                TextContent(
+                    """
                             Current data for ${price.name}:
                             $price
                         """.trimIndent()
-                    )
                 )
             )
-        } else { // Otherwise, indicate that no data was found
-            CallToolResult(
-                content = listOf(TextContent("Failed to retrieve data for $symbol"))
-            )
-        }
+        )
+    } else { // Otherwise, indicate that no data was found
+        CallToolResult(
+            content = listOf(TextContent("Failed to retrieve data for $symbol"))
+        )
     }
+}
 
-    // Add the tool for the `getHistoricalPrice` function 
-    server.addTool(
-        name = "get-historical-price",
-        description = """
+// Add the tool for the `getHistoricalPrice` function 
+server.addTool(
+    name = "get-historical-price",
+    description = """
             The FMP Daily Chart endpoint is a valuable tool for investors who need to track the performance of a stock over a period of time.
             Daily charts can be used to identify trends in the stock price and to identify support and resistance levels.
             The FMP Daily Chart endpoint is easy to use.
@@ -383,46 +394,47 @@ Adding our two functions as Tools:
             For example, an investor might look for stocks that are in an uptrend or a downtrend.
             Investors can also use the FMP Daily Chart endpoint to identify support and resistance levels.
         """.trimIndent(),
-        inputSchema = Tool.Input(
-            properties = JsonObject(
-                mapOf(
-                    "symbol" to JsonPrimitive("string"),
-                    "from" to JsonPrimitive("date"),
-                    "to" to JsonPrimitive("date"),
-                )
-            ),
-            required = listOf("symbol")
-        )
-    ) { request ->
-        val symbol = request.arguments["symbol"]
-        val from = request.arguments["from"]?.jsonPrimitive?.contentOrNull
-        val to = request.arguments["to"]?.jsonPrimitive?.contentOrNull
-        if (symbol == null) {
-            return@addTool CallToolResult(
-                content = listOf(TextContent("The 'symbol' parameter is required."))
+    inputSchema = Tool.Input(
+        properties = JsonObject(
+            mapOf(
+                "symbol" to JsonPrimitive("string"),
+                "from" to JsonPrimitive("date"),
+                "to" to JsonPrimitive("date"),
             )
-        }
-        val price = httpClient.getHistoricalPrice(symbol.jsonPrimitive.content, from, to)
-        if (price != null) {
-            CallToolResult(
-                content = listOf(
-                    TextContent(
-                        """
+        ),
+        required = listOf("symbol")
+    )
+) { request ->
+    val symbol = request.arguments["symbol"]
+    val from = request.arguments["from"]?.jsonPrimitive?.contentOrNull
+    val to = request.arguments["to"]?.jsonPrimitive?.contentOrNull
+    if (symbol == null) {
+        return@addTool CallToolResult(
+            content = listOf(TextContent("The 'symbol' parameter is required."))
+        )
+    }
+    val price = httpClient.getHistoricalPrice(symbol.jsonPrimitive.content, from, to)
+    if (price != null) {
+        CallToolResult(
+            content = listOf(
+                TextContent(
+                    """
                             Historical data for ${price.symbol}:
                             ${price.historical}
                         """.trimIndent()
-                    ),
-                )
+                ),
             )
-        } else {
-            CallToolResult(
-                content = listOf(TextContent("Failed to retrieve data for $symbol"))
-            )
-        }
+        )
+    } else {
+        CallToolResult(
+            content = listOf(TextContent("Failed to retrieve data for $symbol"))
+        )
     }
+}
 ```
 
 Now, define how our server will interact. We will implement two options:
+
 - **stdio** transport
 - **SSE** transport
 
@@ -494,6 +506,7 @@ fun `run sse mcp server`(port: Int): Unit = runBlocking {
 ```
 
 Finally, let’s implement the initialization and startup of our server:
+
 ```kotlin
 /**
  * Entry point.
@@ -533,13 +546,13 @@ Now, let’s use this to verify that our MCP server is working.
 For this, we need to use the [MCP Inspector](https://modelcontextprotocol.io/docs/tools/inspector) utility.
 
 You can install and run the inspector using `npx`:
+
 ```shell
 npx @modelcontextprotocol/inspector <command>
 ```
 
 If the inspector is not installed, the first run will prompt you to confirm the installation.\
 Alternatively, you can pass the `-y` option to automatically confirm the installation.
-
 
 In `<command>`, specify the command to launch our server, such as: `java path/to/jar/file --args`\
 Or you can start the inspector and manually connect it to our server.
@@ -568,18 +581,31 @@ Then, click **Connect**.
 <img src="image/inspector_connect.png" alt="Inspector Connecting" width="1080" height="720" style="border-radius: 10px;">
 
 Once connected:
+
 1. Go to the **Tools** tab
-2.	Click **List Tools** — this will retrieve the available tools on the MCP server
-3.	Select `get-current-price`
-4.	Once you select the tool, you will see its description and input fields for arguments on the right side
-5.	Since this tool requires a single argument (`symbol`), enter a stock ticker such as **`AAPL`**
-6.	You will receive the result of the request execution
+2. Click **List Tools** — this will retrieve the available tools on the MCP server
+3. Select `get-current-price`
+4. Once you select the tool, you will see its description and input fields for arguments on the right side
+5. Since this tool requires a single argument (`symbol`), enter a stock ticker such as **`AAPL`**
+6. You will receive the result of the request execution
 
 <img src="image/inspector_test.png" alt="Inspector Testing" width="1080" height="720" style="border-radius: 10px;">
 
 Similarly, you can test the other tool, `get-historical-price`.
 
 ---
+
+## Connecting to Claude for Desktop
+
+In this section, we will connect the previously developed MCP server to **Claude for Desktop**.
+
+Plan:
+
+1. Install Claude for Desktop
+2. Add MCP Server to Claude for Desktop
+3. Use Claude for Desktop with new capabilities from the MCP Server
+
+To understand how it works, here's a high-level workflow diagram:
 
 ```mermaid
 ---
@@ -602,3 +628,65 @@ sequenceDiagram
     Claude->>Claude: Formulate response
     Claude-->>User: Display response
 ```
+
+### Install Claude for Desktop
+
+Start by downloading the installation file:\
+:point_right: [**Claude for Desktop**](https://claude.ai/download)
+
+And follow the installation instructions.
+
+### Add the MCP Server
+
+1. Open **Claude for Desktop** after installation
+2. Navigate to Settings
+3. Click on **Developer** in the left sidebar, then select **Edit Config**:
+
+   <img src="image/claude_desktop_settings.png" alt="Settings of Claude for Desktop" width="600" style="border-radius: 10px;"/>
+
+   This action will create the file claude_desktop_config.json if it doesn’t already exist
+   and will open it in your file system.
+
+4. Open the configuration file in any text editor and replace its contents with the following:
+
+   ```json
+   {
+     "mcpServers": {
+       "kotlin-fmp": {
+         "command": "java",
+         "args": [
+           "-jar",
+           "/ABSOLUTE/PATH/TO/PARENT/FOLDER/serverAll.jar",
+           "--stdio"
+         ]
+       }
+     }
+   }
+   ```
+   Here, we specify that **Claude for Desktop** should run the jar file specifying the absolute path
+   "**/ABSOLUTE/PATH/TO/PARENT/FOLDER/serverAll.jar**" and use **_--stdio_** as the transport.\
+   This means that when **Claude for Desktop** starts, it will automatically launch server.
+
+   > [!NOTE]
+   > Make sure you specify the absolute path to your **jar** file.
+5. Save the file and restart **Claude for Desktop**
+
+### Try it out!
+
+Once Claude for Desktop starts, let’s check if our server is connected and if the two tools are available.\
+You can do this by looking for the
+<img src="image/claude_desktop_mcp_hammer_icon.svg" style="display: inline; margin: 0; height: 1.3em"/> icon.\
+After clicking on the hammer icon, you should see two tools listed:
+
+<img src="image/claude_desktop_tools.png" alt="Tools in Claude for Desktop" width="600" style="border-radius: 10px;"/>
+
+If Claude for Desktop successfully connects and displays the available tools, you can now test it with a query like:
+
+- **What's Google's current stock price?**
+- **Show me Tesla’s stock trend over the past month**
+
+<img src="image/claude_desktop_answer.png" alt="" width="600" style="border-radius: 10px;"/>
+
+---
+
+## Compose Client
