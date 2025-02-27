@@ -63,8 +63,8 @@ In this section, we'll explore how to create a server that:
 - **_npx_** for testing with the MCP Inspector
 - **_API key_** for retrieving data from [Financial Modeling Prep](https://site.financialmodelingprep.com/)
 
-  > [!TIP]
-  > You can get a free API key after registration, with a limit of **250 requests per day**.
+> [!TIP]
+> You can get a free API key after registration, with a limit of **250 requests per day**.
 
 ### Plan
 
@@ -705,3 +705,243 @@ If Claude for Desktop successfully connects and displays the available tools, yo
 ---
 
 ## Compose Client
+
+In this section, let’s build a Compose-based chatbot application that connects to **MCP Server** and **OpenAI**.\
+We previously covered how to create an MCP Server in the [Building the MCP Server](#building-the-mcp-server) section.
+
+### Requirements
+
+- **_JDK 17_** or higher
+- **_Gradle_**
+- **OPEN_API_KEY** for using OpenAI models
+
+> [!NOTE]
+> You can use any other LLM provider and models of your choice.
+
+### Plan
+
+1. **Project initialization**
+2. **Client implementation**
+3. **Compose Application**
+4. **Build and run**
+
+### Project initialization
+
+For the server, we used the [Kotlin Multiplatform Wizard](#project-initialization).\
+The same generated project will also be used for the client.
+
+We need the **composeApp** module, where all Compose dependencies are already included.\
+However, we need to add the following dependencies to **build.gradle.kts**:
+
+```kotlin
+implementation("io.modelcontextprotocol:kotlin-sdk:$mcp_kotlin_version") // mcp kotlin-sdk
+implementation("org.slf4j:slf4j-nop:$slf4j_version") // logging
+
+implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
+implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+
+implementation("com.openai:openai-java:$openai_java_version") // OpenAI Client SDK
+```
+
+### Creating the Client
+
+Let’s define the MCPClient class, which will handle:
+- Connecting to the MCP Server
+- Processing user queries
+
+Step 1: Define the MCPClient class
+
+```kotlin
+class MCPClient : AutoCloseable {
+    lateinit var mcpClient: Client
+    lateinit var httpClient: HttpClient
+    lateinit var availableTools: List<ChatCompletionTool>
+
+    // Configures using the `OPENAI_API_KEY`, `OPENAI_ORG_ID` and `OPENAI_PROJECT_ID` environment variables
+    var openAiClient: OpenAIClient = OpenAIOkHttpClient.fromEnv()
+
+    val serverVersion: Implementation
+        get() = mcpClient.serverVersion ?: error("Server version is not available")
+
+    /**
+     * Closes the resources used by the `MCPClient` instance.
+     */
+    override fun close() = runBlocking {
+        mcpClient.close()
+        httpClient.close()
+    }
+}
+```
+
+Step 2: Add a method for connecting to the server
+
+```kotlin
+/**
+ * Establishes a connection to the specified server using Server-Sent Events (SSE).
+ * Configures the HTTP client with content negotiation for JSON and SSE capabilities.
+ * After establishing the connection, it retrieves and processes a list of available tools on the server.
+ *
+ * @param serverUrl The URL of the server to connect to.
+ */
+suspend fun connectToServer(serverUrl: String) {
+    httpClient = HttpClient {
+        install(SSE) {
+            showCommentEvents()
+        }
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true; prettyPrint = true })
+        }
+    }
+
+    // Connect to the MCP server via SSE. The mcpSse function performs a handshake.
+    mcpClient = httpClient.mcpSse(serverUrl)
+    println("Connected to the MCP server: ${mcpClient.serverVersion}")
+
+    // Getting a list of available tools
+    val tools = mcpClient.listTools()?.tools
+    availableTools = tools?.toListChatCompletionTools() ?: emptyList()
+    println("Available tools: ${tools?.map { it.name } ?: "No tools found"}")
+}
+```
+
+Step 3: Add a method for processing user queries and calling tools
+
+```kotlin
+/**
+ * Processes a user query by interacting with the OpenAI API and supported tools.
+ * Generates a response by calling tools as needed and appending the results to the conversation.
+ *
+ * @param query The user-provided input to be processed.
+ * @return The formatted response obtained from the conversational model and tool usage.
+ */
+suspend fun processQuery(query: String): String {
+    // Create the base conversation message
+    val messages = mutableListOf(
+        ChatCompletionMessageParam.ofSystem(
+            ChatCompletionSystemMessageParam.builder()
+                .content("You are a financial specialist. You can analyze financial data and make forecasts.")
+                .build(),
+        ),
+        ChatCompletionMessageParam.ofUser(
+            ChatCompletionUserMessageParam.builder().content(query).build()
+        )
+    )
+
+    // Set up OpenAI request parameters
+    val params = ChatCompletionCreateParams.builder()
+        .messages(messages)
+        .model(ChatModel.GPT_4O)
+        .maxCompletionTokens(1000)
+        .tools(availableTools)
+        .build()
+
+    val completion = openAiClient.chat().completions().create(params)
+
+    val answer = StringBuilder()
+    val assistantMessage = StringBuilder()
+
+    for (choice in completion.choices()) {
+        choice.message().content().ifPresent {
+            answer.appendLine(it)
+            assistantMessage.appendLine(it)
+        }
+        for (toolCall in choice.message().toolCalls().getOrNull() ?: emptyList()) {
+            val toolName = toolCall.function().name()
+            val args = Json {}.decodeFromString<Map<String, String>>(toolCall.function().arguments())
+
+            val result = mcpClient.callTool(toolName, args)
+
+            answer.appendLine("[Calling tool $toolName with arguments $args]")
+            assistantMessage.appendLine("Calling tool $toolName with arguments $args")
+
+            messages.add(ChatCompletionMessageParam.ofAssistant(
+                ChatCompletionAssistantMessageParam.builder().content(assistantMessage.toString()).build()
+            ))
+
+            messages.add(ChatCompletionMessageParam.ofUser(
+                ChatCompletionUserMessageParam.builder()
+                    .content("""
+                        "type": "tool_result",
+                        "tool_use_id": ${toolCall.id()},
+                        "result": ${result?.content?.joinToString()}
+                    """.trimIndent())
+                    .build()
+            ))
+
+            val response = openAiClient.chat().completions().create(params)
+            answer.appendLine(response.choices().firstOrNull()?.message()?.content()?.getOrNull() ?: "")
+        }
+    }
+
+    return answer.toString()
+}
+```
+
+### Building the user interface with Compose
+
+To interact with the LLM, we will use Compose:
+
+```kotlin
+@Composable
+@Preview
+fun App() {
+    var query by remember { mutableStateOf("") }
+    var messages by remember { mutableStateOf(listOf<ChatMessage>()) }
+    var isLoading by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val mcpClient = remember { MCPClient() }
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        mcpClient.connectToServer("http://localhost:3001/sse")
+        messages = messages + ChatMessage(MessageType.ASSISTANT, "Connected to the server: ${mcpClient.serverVersion}")
+    }
+
+    suspend fun sendQuery() {
+        if (query.isBlank() || isLoading) return
+        isLoading = true
+        messages = messages + ChatMessage(MessageType.USER, query)
+        val response = mcpClient.processQuery(query)
+        messages = messages + ChatMessage(MessageType.ASSISTANT, response)
+        query = ""
+        isLoading = false
+        listState.animateScrollToItem(messages.size - 1)
+    }
+
+    MaterialTheme {
+        Scaffold(
+            topBar = { TopAppBar(title = { Text("MCP Client") }) },
+            content = { padding ->
+                Column(modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
+                    LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f), state = listState) {
+                        items(messages) { message ->
+                            Text(message.content, modifier = Modifier.padding(8.dp))
+                        }
+                    }
+                    Row {
+                        TextField(value = query, onValueChange = { query = it })
+                        Button(onClick = { scope.launch { sendQuery() } }) { Text("Send") }
+                    }
+                }
+            }
+        )
+    }
+}
+```
+
+### Running the Client
+
+To start the Compose application, run:
+
+```shell
+./gradlew composeApp:desktopRun
+```
+
+> [!NOTE]
+> Make sure to [start the MCP Server](#building-server) first before running the client.
+
+Here’s how the final chat application will look:
+
+<p align="center">
+  <img src="image/compose_client.png" alt="" width="600"/>
+</p>
