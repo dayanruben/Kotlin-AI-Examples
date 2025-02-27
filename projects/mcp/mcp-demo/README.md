@@ -685,9 +685,9 @@ If Claude for Desktop successfully connects and displays the available tools, yo
 - **What's Google's current stock price?**
 - **Show me Tesla’s stock trend over the past month**
 
-<p align="center">
+<frame>
   <img src="image/claude_desktop_answer.png" alt="" width="600" style="clip-path: inset(0% round 10px);">
-</p>
+</frame>
 
 ---
 
