@@ -679,6 +679,7 @@ And follow the installation instructions.
 
    > [!NOTE]
    > Make sure you specify the absolute path to your **jar** file.
+
 5. Save the file and restart **Claude for Desktop**
 
 ### Try it out!
