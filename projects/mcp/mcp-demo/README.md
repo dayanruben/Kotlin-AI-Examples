@@ -38,7 +38,9 @@ Thus, MCP enhances the functionality of LLMs by providing them access to APIs an
 
 Below is a simple diagram illustrating what we weill build in this tutorial:
 
-<img src="image/mcp_demo.svg" alt="MCP Demo" style="width: 100%; height: auto; border-radius: 10px;">
+<p align="center">
+    <img src="image/mcp_demo.svg" alt="MCP Demo" style="width: 100%; height: auto;"/>
+</p>
 
 ---
 
@@ -86,7 +88,9 @@ Let's outline the general plan for creating an MCP server:
 Since we will be developing both the server and the client using Compose, the easiest way to create project is by
 using the [**Kotlin Multiplatform Wizard**](https://kmp.jetbrains.com/)
 
-<img src="image/wizard.png" alt="Kotlin Wizard" width="720" height="660" align="center" style="border-radius: 10px;">
+<p align="center">
+    <img src="image/wizard.png" alt="Kotlin Wizard" width="720"/>
+</p>
 
 > [!NOTE]
 > You can use any other Kotlin wizard to create the project or run `gradle init` and follow the instructions in the next
@@ -578,7 +582,9 @@ Now, let’s open the inspector in any browser and test our MCP server!
 To connect to the running service, select **SSE** as the **transport type** and enter the server **URL**.
 Then, click **Connect**.
 
-<img src="image/inspector_connect.png" alt="Inspector Connecting" width="1080" height="720" style="border-radius: 10px;">
+<p align="center">
+    <img src="image/inspector_connect.png" alt="Inspector Connecting" width="1080"/>
+</p>
 
 Once connected:
 
@@ -589,7 +595,9 @@ Once connected:
 5. Since this tool requires a single argument (`symbol`), enter a stock ticker such as **`AAPL`**
 6. You will receive the result of the request execution
 
-<img src="image/inspector_test.png" alt="Inspector Testing" width="1080" height="720" style="border-radius: 10px;">
+<p align="center">
+    <img src="image/inspector_test.png" alt="Inspector Testing" width="1080"/>
+</p>
 
 Similarly, you can test the other tool, `get-historical-price`.
 
@@ -642,7 +650,9 @@ And follow the installation instructions.
 2. Navigate to Settings
 3. Click on **Developer** in the left sidebar, then select **Edit Config**:
 
-   <img src="image/claude_desktop_settings.png" alt="Settings of Claude for Desktop" width="600" style="border-radius: 10px;"/>
+   <p align="center">
+        <img src="image/claude_desktop_settings.png" alt="Settings of Claude for Desktop" width="600"/>
+   </p>
 
    This action will create the file claude_desktop_config.json if it doesn’t already exist
    and will open it in your file system.
@@ -678,16 +688,18 @@ You can do this by looking for the
 <img src="image/claude_desktop_mcp_hammer_icon.svg" style="display: inline; margin: 0; height: 1.3em"/> icon.\
 After clicking on the hammer icon, you should see two tools listed:
 
-<img src="image/claude_desktop_tools.png" alt="Tools in Claude for Desktop" width="600" style="border-radius: 10px;"/>
+<p align="center">
+    <img src="image/claude_desktop_tools.png" alt="Tools in Claude for Desktop" width="600"/>
+</p>
 
 If Claude for Desktop successfully connects and displays the available tools, you can now test it with a query like:
 
 - **What's Google's current stock price?**
 - **Show me Tesla’s stock trend over the past month**
 
-<frame>
-  <img src="image/claude_desktop_answer.png" alt="" width="600" style="clip-path: inset(0% round 10px);">
-</frame>
+<p align="center">
+  <img src="image/claude_desktop_answer.png" alt="" width="600"/>
+</p>
 
 ---
 
