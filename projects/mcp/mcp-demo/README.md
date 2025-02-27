@@ -580,3 +580,25 @@ Once connected:
 Similarly, you can test the other tool, `get-historical-price`.
 
 ---
+
+```mermaid
+---
+config:
+    look: handDrawn
+    theme: neutral
+---
+sequenceDiagram
+    actor User
+    participant Claude as Claude for Desktop
+    participant MCP_Server as MCP Server
+    participant Tools as Remote Service
+
+    User->>Claude: Send question
+    Claude->>Claude: Analyze available tools
+    Claude->>MCP_Server: Decide & request tool execution
+    MCP_Server->>Tools: Execute chosen tools
+    Tools-->>MCP_Server: Return results
+    MCP_Server-->>Claude: Send results
+    Claude->>Claude: Formulate response
+    Claude-->>User: Display response
+```
