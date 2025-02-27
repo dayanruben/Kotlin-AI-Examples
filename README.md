@@ -36,6 +36,12 @@ This section contains complete Kotlin projects demonstrating AI integrations.
 - **[langchain4j-spring-boot](projects/langchain4j/langchain4j-spring-boot)**: Examples of using LangChain4j with Kotlin
   and Spring
 
+### MCP Examples ([`/projects/mcp`](projects/mcp))
+
+- **[mcp-demo](projects/mcp/mcp-demo)**: this tutorial briefly describes the process of creating an MCP server in Kotlin
+  to work with stock data from FMP, connecting it to Claude for Desktop,
+  and developing a custom client based on OpenAI using Compose.
+
 ---
 
 ## Kotlin Notebooks ([`/notebooks`](notebooks))
