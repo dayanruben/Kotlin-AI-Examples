@@ -677,8 +677,8 @@ And follow the installation instructions.
    "**/ABSOLUTE/PATH/TO/PARENT/FOLDER/serverAll.jar**" and use **_--stdio_** as the transport.\
    This means that when **Claude for Desktop** starts, it will automatically launch server.
 
-   > [!NOTE]
-   > Make sure you specify the absolute path to your **jar** file.
+> [!NOTE]
+> Make sure you specify the absolute path to your **jar** file.
 
 5. Save the file and restart **Claude for Desktop**
 
