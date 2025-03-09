@@ -30,6 +30,9 @@ This section contains complete Kotlin projects demonstrating AI integrations.
 - **[playground-flight-booking](projects/spring-ai/playground-flight-booking)**: An AI-powered flight booking system
   demo using multiple providers (OpenAI, VertexAI Gemini, Azure OpenAI, Groq, Anthropic Claude)
 - **[spring-ai-mcp-server-example](projects/spring-ai/spring-ai-mcp-server-example)**: spring mcp server sample
+- **[springAI-demo](projects/spring-ai/springAI-demo)**: a Spring Boot application with Spring AI and Kotlin that loads
+  Kotlin standard library documents into a Qdrant vector store, implements endpoints for similarity search and a
+  RAG-powered chat interface, and integrates an LLM for detailed, document-driven answers.
 
 ### LangChain4j Examples ([`/projects/langchain4j`](projects/langchain4j))
 
