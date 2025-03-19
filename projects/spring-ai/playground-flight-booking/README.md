@@ -17,7 +17,8 @@ This project demonstrates how to use [Spring AI](https://github.com/spring-proje
 
 ## Running
 
-Run the application by executing `Application.kt` in your IDE or by running `./gradlew bootRun` in the command line.
+Run the application by executing `Application.kt` in your IDE or by running `./gradlew bootRun`
+(`gradlew.bat bootRun` for Windows) in the command line.
 
 ### With OpenAI Chat
 
@@ -92,12 +93,24 @@ spring.ai.anthropic.chat.options.model=claude-3-5-sonnet-20240620
 ```
 
 ## Build Jar
+[MacOS/Linux]
 ```shell
 ./gradlew clean build -Pproduction
 ```
 
+[Windows]
+```shell
+gradlew.bat clean build -Pproduction
+```
+
+[MacOS/Linux]
 ```shell
 java -jar ./build/libs/playground-flight-booking-0.0.1-SNAPSHOT.jar
+```
+
+[Windows]
+```shell
+java -jar .\build\libs\playground-flight-booking-0.0.1-SNAPSHOT.jar
 ```
 
 ## Using Docker

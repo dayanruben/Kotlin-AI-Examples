@@ -33,7 +33,7 @@ When a POST request is made to the `/chat` endpoint with a text question in the 
   ```
 
 2. Set the environment variable
-   On Unix/Linux/macOS:
+   On Unix/Linux/MacOS:
 
   ```shell
   export BRAVE_API_KEY="your-brave-api-key"
@@ -47,16 +47,28 @@ set BRAVE_API_KEY=your-brave-api-key
 
 3. Build the project
 
+  On Unix/Linux/MacOS
   ```shell
   ./gradlew build
+  ```
+
+  On Windows:
+  ```shell
+  gradlew.bat build
   ```
 
 ## Running the application
 
 Start the application using Gradle:
 
+Unix/Linux/MacOS:
 ```shell
 ./gradlew run
+```
+
+Windows:
+```shell
+gradlew.bat run
 ```
 
 The embedded Ktor server will start on port 8080.

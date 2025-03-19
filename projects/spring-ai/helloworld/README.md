@@ -19,8 +19,14 @@ The Spring AI project defines a configuration property named `spring.ai.openai.a
 
 Exporting an environment variable is one way to set that configuration property:
 
+[MacOS/Linux]
 ```shell
 export OPENAI_API_KEY=<INSERT KEY HERE>
+```
+
+[Windows]
+```shell
+set OPENAI_API_KEY=<INSERT KEY HERE>
 ```
 
 Setting the API key is all you need to run the application.
@@ -28,8 +34,14 @@ However, you can find more information on setting started in the [Spring AI refe
 
 ## Building and running
 
+[MacOS/Linux]
 ```shell
 ./gradlew bootRun
+```
+
+[Windows]
+```shell
+gradlew.bat bootRun
 ```
 
 ## Access the endpoint

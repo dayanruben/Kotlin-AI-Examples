@@ -41,8 +41,14 @@ repository. It demonstrates how to use `langchain4j` with Spring Boot in a Kotli
     ```
 
 3. Build and run the project using Gradle:
+
+   [MacOS/Linux]
     ```bash
     ./gradlew bootRun
+    ```
+   [Windows]
+    ```shell
+   gradlew.bat bootRun
     ```
 
 4. The project will start by default at `http://localhost:8080`.

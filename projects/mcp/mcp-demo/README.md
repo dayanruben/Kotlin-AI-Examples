@@ -540,8 +540,14 @@ fun main(args: Array<String>) {
 
 To start our server, you can use the GUI option in your IDE or run the following command in the terminal:
 
+[MacOS/Linux]
 ```shell
 ./gradlew server:run
+```
+
+[Windows]
+```shell
+gradlew.bat server:run
 ```
 
 Once the server starts, it will be available at `http://localhost:3001/sse` or another specified port.
@@ -933,8 +939,14 @@ fun App() {
 
 To start the Compose application, run:
 
+[MacOS/Linux]
 ```shell
 ./gradlew composeApp:desktopRun
+```
+
+[Windows]
+```shell
+gradlew.bat composeApp:desktopRun
 ```
 
 > [!NOTE]
