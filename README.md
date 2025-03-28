@@ -55,6 +55,22 @@ A collection of interactive Jupyter notebooks in Kotlin, organized by project.
 
 - **[SpringAI_Overview.ipynb](notebooks/spring-ai/SpringAI_Overview.ipynb)**: overview of Spring AI with Kotlin
 
+- **[Tutorial Series](notebooks/spring-ai/tutorials)**
+  This series of interactive notebooks provides a hands-on journey through Spring AI capabilities with Kotlin. 
+  Each notebook builds on the previous one, guiding you from basic concepts to advanced AI integrations.
+
+  | Notebook                                                                                         | Description                                                                     |
+  |--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+  | **[1. Intro.ipynb](notebooks/spring-ai/tutorials/1.%20Intro.ipynb)**                             | Introduction to Spring AI fundamentals and setup with Kotlin                    |
+  | **[2. Prompts.ipynb](notebooks/spring-ai/tutorials/2.%20Prompts.ipynb)**                         | Working with prompt engineering techniques and best practices                   |
+  | **[3. Streaming.ipynb](notebooks/spring-ai/tutorials/3.%20Streaming.ipynb)**                     | Implementing streaming responses for real-time AI interactions                  |
+  | **[4. Tools.ipynb](notebooks/spring-ai/tutorials/4.%20Tools.ipynb)**                             | Connecting LLMs to external tools and functions for enhanced capabilities       |
+  | **[5. Structured Outputs.ipynb](notebooks/spring-ai/tutorials/5.%20Structured%20Outputs.ipynb)** | Getting formatted, structured data from LLMs for easier application integration |
+  | **[6. Advisors.ipynb](notebooks/spring-ai/tutorials/6.%20Advisors.ipynb)**                       | Using Spring AI's Advisor system to enhance and customize AI interactions       |
+  | **[7. RAG.ipynb](notebooks/spring-ai/tutorials/7.%20RAG.ipynb)**                                 | Implementing Retrieval-Augmented Generation with your own data sources          |
+  | **[8. Text-to-Image.ipynb](notebooks/spring-ai/tutorials/8.%20text-to-image.ipynb)**             | Converting text descriptions into generated images with Spring AI               |
+  | **[9. Text-to-Audio.ipynb](notebooks/spring-ai/tutorials/9.%20text-to-audio.ipynb)**             | Creating speech from text and transcribing audio with AI models                 |
+
 ### LangChain4j Kotlin Notebooks ([`/notebooks/langchain4j`](notebooks/langchain4j))
 
 - **[LangChain4j_Overview.ipynb](notebooks/langchain4j/LangChain4j_Overview.ipynb)**: overview of LangChain4j with
