@@ -60,7 +60,7 @@ A collection of interactive Jupyter notebooks in Kotlin, organized by project.
   Each notebook builds on the previous one, guiding you from basic concepts to advanced AI integrations.
 
   | Notebook                                                                                         | Description                                                                     |
-      |--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+  |--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
   | **[1. Intro.ipynb](notebooks/spring-ai/tutorials/1.%20Intro.ipynb)**                             | Introduction to Spring AI fundamentals and setup with Kotlin                    |
   | **[2. Prompts.ipynb](notebooks/spring-ai/tutorials/2.%20Prompts.ipynb)**                         | Working with prompt engineering techniques and best practices                   |
   | **[3. Streaming.ipynb](notebooks/spring-ai/tutorials/3.%20Streaming.ipynb)**                     | Implementing streaming responses for real-time AI interactions                  |
