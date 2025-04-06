@@ -25,7 +25,7 @@ kotlin {
             implementation(libs.mcp.kotlin)
             implementation(libs.slf4j)
             implementation(libs.ktor.client.content.negotation)
-            implementation(libs.ktor.client.serialization)
+            implementation(libs.ktor.serialization)
             implementation(libs.openai.java)
         }
         desktopMain.dependencies {

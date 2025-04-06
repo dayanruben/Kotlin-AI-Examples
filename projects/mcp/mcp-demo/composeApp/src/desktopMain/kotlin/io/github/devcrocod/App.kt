@@ -1,15 +1,24 @@
 package io.github.devcrocod
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -19,7 +28,20 @@ enum class MessageType {
 }
 
 // Data class for each chat message
-data class ChatMessage(val type: MessageType, val content: String)
+data class ChatMessage(val type: MessageType, val content: String, val timestamp: String = getCurrentTime())
+
+// Custom theme colors
+private val DarkBlue = Color(0xFF2A3B90)
+private val LightBlue = Color(0xFF4267B2)
+private val LightGray = Color(0xFFF5F5F5)
+private val DarkGray = Color(0xFF484848)
+private val UserBubbleColor = Color(0xFF2A3B90)
+private val AssistantBubbleColor = Color(0xFFF1F1F1)
+
+private fun getCurrentTime(): String {
+    val now = java.time.LocalTime.now()
+    return String.format("%02d:%02d", now.hour, now.minute)
+}
 
 @Composable
 @Preview
@@ -36,13 +58,13 @@ fun App() {
 
     // Connecting to the server on screen startup
     LaunchedEffect(Unit) {
-        mcpClient.connectToServer("http://localhost:3001/sse")
+        mcpClient.connectToServer("http://localhost:3001")
         messages = messages + ChatMessage(
-            MessageType.ASSISTANT, "Connected to the server: ${mcpClient.serverVersion}"
+            MessageType.ASSISTANT, "👋 Hello! I'm your AI assistant. How can I help you?",
         )
     }
 
-    suspend fun senQuery() {
+    suspend fun sendQuery() {
         // Avoid sending or ongoing requests
         if (query.isBlank() || isLoading) return
 
@@ -55,96 +77,243 @@ fun App() {
         listState.animateScrollToItem(messages.size - 1)
     }
 
-    MaterialTheme {
+    MaterialTheme(
+        colors = MaterialTheme.colors.copy(
+            primary = DarkBlue,
+            primaryVariant = LightBlue,
+            secondary = LightBlue,
+            background = Color.White,
+            surface = Color.White
+        )
+    ) {
         Scaffold(
             // App bar with a title
-            topBar = { TopAppBar(title = { Text("MCP Client") }) },
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(CircleShape)
+                                    .background(LightBlue),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    "AI",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                "MCP Chat Assistant",
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    },
+                    backgroundColor = Color.White,
+                    elevation = 4.dp
+                )
+            },
             content = { padding ->
                 // Main container
-                Column(
-                    modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .background(LightGray)
                 ) {
-                    // Displays messages in a lazy list
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth().weight(1f),
-                        state = listState
+                    Column(
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        items(messages) { message ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = when (message.type) {
-                                    MessageType.USER -> Arrangement.End
-                                    MessageType.ASSISTANT -> Arrangement.Start
-                                }
+                        // Displays messages in a lazy list
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                state = listState,
+                                contentPadding = PaddingValues(vertical = 8.dp)
                             ) {
-                                // Use different maximum widths depending on the message type
-                                val maxWidth = when (message.type) {
-                                    MessageType.USER -> 300.dp
-                                    MessageType.ASSISTANT -> 600.dp
+                                items(messages) { message ->
+                                    MessageItem(message)
                                 }
-                                // Card to contain each message text
-                                Card(
-                                    modifier = Modifier.widthIn(max = maxWidth).padding(vertical = 4.dp),
-                                    elevation = 4.dp
+                            }
+
+                            // Show loading indicator
+                            if (isLoading) {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                    contentAlignment = Alignment.CenterStart
                                 ) {
-                                    Text(
-                                        text = message.content,
-                                        modifier = Modifier.padding(8.dp)
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = DarkBlue,
+                                        strokeWidth = 2.dp
                                     )
                                 }
                             }
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Input field and send button
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Text field for the user's query
-                        TextField(
-                            value = query,
-                            onValueChange = { query = it },
-                            modifier = Modifier
-                                .weight(1f)
-                                .onPreviewKeyEvent { keyEvent ->
-                                    if (!isLoading && keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Enter) {
-                                        // Send a message on the Enter key
-                                        scope.launch { senQuery() }
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                },
-                            placeholder = { Text("Enter your query...") },
-                            enabled = !isLoading
-                        )
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        // Button to send the query
-                        Button(
-                            onClick = {
-                                if (!isLoading && query.isNotBlank()) {
-                                    scope.launch { senQuery() }
-                                }
-                            },
-                            enabled = !isLoading
+                        // Input field and send button
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = 8.dp
                         ) {
-                            if (isLoading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    strokeWidth = 2.dp
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Text field for the user's query
+                                OutlinedTextField(
+                                    value = query,
+                                    onValueChange = { query = it },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .onPreviewKeyEvent { keyEvent ->
+                                            if (!isLoading && keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Enter) {
+                                                // Send a message on the Enter key
+                                                scope.launch { sendQuery() }
+                                                true
+                                            } else {
+                                                false
+                                            }
+                                        },
+                                    placeholder = { Text("Enter your query...") },
+                                    enabled = !isLoading,
+                                    shape = RoundedCornerShape(24.dp),
+                                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                                        focusedBorderColor = DarkBlue,
+                                        unfocusedBorderColor = Color.LightGray
+                                    ),
+                                    singleLine = false,
+                                    maxLines = 4
                                 )
-                            } else {
-                                Text("Send")
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                // Button to send the query
+                                IconButton(
+                                    onClick = {
+                                        if (!isLoading && query.isNotBlank()) {
+                                            scope.launch { sendQuery() }
+                                        }
+                                    },
+                                    enabled = !isLoading && query.isNotBlank(),
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape)
+                                        .background(if (query.isNotBlank()) DarkBlue else Color.LightGray)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.Send,
+                                        contentDescription = "Send",
+                                        tint = Color.White
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
         )
+    }
+}
+
+@Composable
+fun MessageItem(message: ChatMessage) {
+    val isUserMessage = message.type == MessageType.USER
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = if (isUserMessage) Arrangement.End else Arrangement.Start
+        ) {
+            if (!isUserMessage) {
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(LightBlue),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "AI",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+
+            Text(
+                text = if (isUserMessage) "You" else "Assistant",
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                color = DarkGray
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = message.timestamp,
+                fontSize = 10.sp,
+                color = Color.Gray
+            )
+
+            if (isUserMessage) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(DarkBlue),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "You",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Message bubble
+        Box(
+            modifier = Modifier
+                .widthIn(max = if (isUserMessage) 300.dp else 500.dp)
+                .clip(
+                    RoundedCornerShape(
+                        topStart = 16.dp,
+                        topEnd = 16.dp,
+                        bottomStart = if (isUserMessage) 16.dp else 4.dp,
+                        bottomEnd = if (isUserMessage) 4.dp else 16.dp
+                    )
+                )
+                .background(if (isUserMessage) UserBubbleColor else AssistantBubbleColor)
+                .padding(12.dp)
+        ) {
+            Text(
+                text = message.content,
+                color = if (isUserMessage) Color.White else Color.Black
+            )
+        }
     }
 }

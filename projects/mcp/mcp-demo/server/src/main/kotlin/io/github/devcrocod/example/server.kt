@@ -1,16 +1,11 @@
 package io.github.devcrocod.example
 
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.plugins.logging.DEFAULT
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.http.ContentType
-import io.ktor.http.URLProtocol
-import io.ktor.http.contentType
-import io.ktor.http.path
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
@@ -19,20 +14,15 @@ import io.ktor.server.sse.*
 import io.ktor.util.collections.*
 import io.ktor.utils.io.streams.*
 import io.modelcontextprotocol.kotlin.sdk.*
-import io.modelcontextprotocol.kotlin.sdk.server.SSEServerTransport
 import io.modelcontextprotocol.kotlin.sdk.server.Server
 import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
+import io.modelcontextprotocol.kotlin.sdk.server.SseServerTransport
 import io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.asSink
 import kotlinx.io.buffered
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.*
 
 /**
  * Configures and initializes a server instance with predefined tools and capabilities.
@@ -44,8 +34,6 @@ import kotlinx.serialization.json.jsonPrimitive
  * @return The configured [Server] instance with tools for handling financial data operations.
  */
 fun configureServer(): Server {
-    val def = CompletableDeferred<Unit>()
-
     val json = Json {
         ignoreUnknownKeys = true
         prettyPrint = true
@@ -75,7 +63,7 @@ fun configureServer(): Server {
                 tools = ServerCapabilities.Tools(listChanged = true)
             )
         )
-    ) { def.complete(Unit) }
+    )
 
     server.addTool(
         name = "get-current-price",
@@ -191,7 +179,7 @@ fun `run mcp server using stdio`() {
     runBlocking {
         server.connect(transport)
         val done = Job()
-        server.onCloseCallback = {
+        server.onClose {
             done.complete()
         }
         done.join()
@@ -213,19 +201,19 @@ fun `run sse mcp server`(port: Int): Unit = runBlocking {
         install(SSE)
         routing {
             sse("/sse") {
-                val transport = SSEServerTransport("/message", this)
+                val transport = SseServerTransport("/message", this)
 
                 servers[transport.sessionId] = server
 
-                server.onCloseCallback = {
+                server.onClose {
                     servers.remove(transport.sessionId)
                 }
 
                 server.connect(transport)
             }
-            post("/sse/message") {
+            post("/message") {
                 val sessionId: String = call.request.queryParameters["sessionId"]!!
-                val transport = servers[sessionId]?.transport as? SSEServerTransport
+                val transport = servers[sessionId]?.transport as? SseServerTransport
                 if (transport == null) {
                     call.respond("Session not found", null)
                     return@post
