@@ -26,7 +26,7 @@ fun Application.module() {
 
     // Get the Brave Search API key from environment variables
     val braveApiKey = System.getenv("BRAVE_API_KEY")
-        ?: error("Переменная окружения BRAVE_API_KEY не установлена")
+        ?: error("The environment variable BRAVE_API_KEY is not set")
 
     // Starting the Brave Search process via npx
     val process = ProcessBuilder("npx", "-y", "@modelcontextprotocol/server-brave-search")
