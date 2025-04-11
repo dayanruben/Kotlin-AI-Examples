@@ -90,11 +90,23 @@ A collection of interactive Jupyter notebooks in Kotlin, organized by project.
   text documents into smaller chunks, summarize each chunk with an AI model, and then merge the summaries into a concise
   final result.
 
+### OpenAI Kotlin Notebooks ([`/notebooks/openai`](notebooks/openai))
+
+- **[OpenAI Java SDK Overview](notebooks/openai/OpenAI%20Java%20SDK%20Overview.ipynb)**: overview of the OpenAI
+  Java SDK, demonstrating how to install the library, initialize clients, make basic API calls with various parameters,
+  compare prompt effectiveness, and implement function calling with a practical weather example
+  — all written in Kotlin for JVM applications.
+- **[OpenAI Image Recognition](notebooks/openai/OpenAI%20Image%20Recognition.ipynb)**: demonstrates how to use OpenAI's
+  vision capabilities to analyze images by encoding them as base64,
+  sending them to GPT-4o via the OpenAI Java client, and displaying the AI's response about the image content.
+
 ### Agents ReaCtor (ARC) Kotlin Notebooks ([`/notebooks/arc`](notebooks/arc))
 
-- **[WeatherAgent.ipynb](notebooks/arc/WeatherAgent.ipynb)**: demonstrates creating an agent that retrieves real-time
+- **[WeatherAgent](notebooks/arc/WeatherAgent.ipynb)**: demonstrates creating an agent that retrieves real-time
   weather data for a specified location via WeatherAPI
-- **[SummarizerAgent.ipynb](notebooks/arc/SummarizerAgent.ipynb)**: demonstrates creating an agent that summarizes web
+- **[TaskManagerAgent](notebooks/arc/TaskManagerAgent.ipynb)**: task management agent showcasing how to create
+  a conversational AI that can add, remove, and list tasks through a clean API with function calling capabilities
+- **[SummarizerAgent](notebooks/arc/SummarizerAgent.ipynb)**: demonstrates creating an agent that summarizes web
   pages (e.g., blog posts) by processing HTML and generating concise summaries
 
 ### KInference Kotlin Notebooks ([`/notebooks/kInference`](notebooks/kinference))
