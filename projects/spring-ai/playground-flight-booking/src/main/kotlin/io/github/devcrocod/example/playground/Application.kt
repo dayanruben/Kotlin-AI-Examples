@@ -1,57 +1,65 @@
 package io.github.devcrocod.example.playground
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import com.vaadin.flow.component.page.AppShellConfigurator
+import com.vaadin.flow.theme.Theme
+import io.micrometer.observation.ObservationPredicate
 import org.springframework.ai.chat.memory.ChatMemory
-import org.springframework.ai.chat.memory.InMemoryChatMemory
-import org.springframework.ai.embedding.EmbeddingModel
+import org.springframework.ai.chat.memory.MessageWindowChatMemory
 import org.springframework.ai.reader.TextReader
 import org.springframework.ai.transformer.splitter.TokenTextSplitter
-import org.springframework.ai.vectorstore.SimpleVectorStore
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.core.io.Resource
-
-import com.vaadin.flow.component.page.AppShellConfigurator
-import com.vaadin.flow.theme.Theme
-import org.springframework.boot.runApplication
+import org.springframework.http.server.observation.ServerRequestObservationContext
 
 @SpringBootApplication
 @Theme(value = "customer-support-agent")
 class Application : AppShellConfigurator {
-    private val logger: Logger = LoggerFactory.getLogger(Application::class.java)
-
-    // In the real world, ingesting documents would often happen separately, on a CI
-    // server or similar.
+    /** Index the Terms-of-Service document into the vector store. */
     @Bean
     fun ingestTermOfServiceToVectorStore(
-        embeddingModel: EmbeddingModel,
         vectorStore: VectorStore,
         @Value("classpath:rag/terms-of-service.txt") termsOfServiceDocs: Resource
-    ): CommandLineRunner {
-        return CommandLineRunner {
-            // Ingest the document into the vector store
-            vectorStore.write(TokenTextSplitter().transform(TextReader(termsOfServiceDocs).read()))
-
-            vectorStore.similaritySearch("Cancelling Bookings").forEach { doc ->
-                logger.info("Similar Document: ${doc.content}")
-            }
-        }
+    ): CommandLineRunner = CommandLineRunner {
+        vectorStore.write(
+            TokenTextSplitter().transform(
+                TextReader(termsOfServiceDocs).read()
+            )
+        )
     }
 
-    @Bean
-    fun vectorStore(embeddingModel: EmbeddingModel): VectorStore =
-        SimpleVectorStore(embeddingModel)
-
+    /** Default in-memory chat window. */
     @Bean
     fun chatMemory(): ChatMemory =
-        InMemoryChatMemory()
+        MessageWindowChatMemory.builder().build()
+
+    /**
+     * Optionally suppress actuator and static-asset endpoints from micrometer
+     * `http.server.requests` observations
+     */
+    @Bean
+    fun noActuatorServerObservations(): ObservationPredicate =
+        ObservationPredicate { name, context ->
+            if (name == "http.server.requests" && context is ServerRequestObservationContext) {
+                val uri = context.carrier.requestURI
+                uri.run {
+                    !startsWith("/actuator") &&
+                            !startsWith("/VAADIN") &&
+                            !startsWith("/HILLA") &&
+                            !startsWith("/connect") &&
+                            !startsWith("/**") &&
+                            !equals("/", ignoreCase = true)
+                }
+            } else {
+                true
+            }
+        }
 }
 
 fun main(args: Array<String>) {
     runApplication<Application>(*args)
 }
-

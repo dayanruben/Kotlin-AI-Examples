@@ -12,7 +12,6 @@ import org.springframework.ai.document.Document
 import org.springframework.ai.embedding.EmbeddingModel
 import org.springframework.ai.reader.JsonReader
 import org.springframework.ai.vectorstore.SimpleVectorStore
-import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Service
@@ -41,13 +40,13 @@ class RagService(
 
         // Step 2 - Create embeddings and save to vector store
         logger.info("Creating Embeddings...")
-        val vectorStore: VectorStore = SimpleVectorStore(embeddingClient)
+        val vectorStore = SimpleVectorStore.builder(embeddingClient).build()
         vectorStore.add(documents)
         logger.info("Embeddings created.")
 
         // Step 3 retrieve related documents to query
         logger.info("Retrieving relevant documents")
-        val similarDocuments = vectorStore.similaritySearch(message)
+        val similarDocuments = vectorStore.similaritySearch(message)!!
         logger.info("Found ${similarDocuments.size} relevant documents.")
 
         // Step 4 Embed documents into SystemMessage with the `system-qa.st` prompt
@@ -63,12 +62,12 @@ class RagService(
         val chatResponse = chatClient.prompt(prompt).call().chatResponse()!!
         logger.info("AI responded.")
 
-        logger.info(chatResponse.result.output.content)
+        logger.info(chatResponse.result.output.text)
         return chatResponse.result.output!!
     }
 
     private fun getSystemMessage(similarDocuments: List<Document>): Message {
-        val documents = similarDocuments.joinToString("\n") { it.content }
+        val documents = similarDocuments.joinToString("\n") { it.text ?: "" }
         val systemPromptTemplate = SystemPromptTemplate(systemBikePrompt)
         return systemPromptTemplate.createMessage(mapOf("documents" to documents))
     }

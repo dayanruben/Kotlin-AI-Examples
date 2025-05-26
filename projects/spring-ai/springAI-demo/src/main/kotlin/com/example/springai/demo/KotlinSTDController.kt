@@ -2,13 +2,11 @@ package com.example.springai.demo
 
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
-import org.springframework.ai.chat.client.advisor.RetrievalAugmentationAdvisor
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.ai.document.Document
-import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQueryTransformer
-import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever
 import org.springframework.ai.vectorstore.SearchRequest
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.web.bind.annotation.GetMapping
@@ -37,9 +35,6 @@ class KotlinSTDController(
 
     // Build the chat client with a simple logging advisor.
     private val chatClient = chatClientBuilder.defaultAdvisors(SimpleLoggerAdvisor()).build()
-
-    // Build the query transformer builder for rewriting queries.
-    private val rqtBuilder = RewriteQueryTransformer.builder().chatClientBuilder(chatClientBuilder)
 
     @OptIn(ExperimentalUuidApi::class)
     @PostMapping("/load-docs")
@@ -90,24 +85,23 @@ class KotlinSTDController(
         val promptTemplate = PromptTemplate(
             """
             {query}.
-            Please provide a concise answer based on the {target} documentation.
+            Please provide a concise answer based on the "Kotlin standard library" documentation.
         """.trimIndent()
         )
 
         // Create the prompt by substituting placeholders with actual values.
         val prompt: Prompt =
-            promptTemplate.create(mapOf("query" to request.query, "target" to "Kotlin standard library"))
+            promptTemplate.create(mapOf("query" to request.query))
 
         // Configure the retrieval advisor to augment the query with relevant documents.
-        val retrievalAdvisor = RetrievalAugmentationAdvisor.builder()
-            .documentRetriever(
-                VectorStoreDocumentRetriever.builder()
+        val retrievalAdvisor = QuestionAnswerAdvisor.builder(vectorStore)
+            .searchRequest(
+                SearchRequest.builder()
                     .similarityThreshold(0.7)
                     .topK(request.topK)
-                    .vectorStore(vectorStore)
                     .build()
             )
-            .queryTransformers(rqtBuilder.promptTemplate(promptTemplate).build())
+            .promptTemplate(promptTemplate)
             .build()
 
         // Send the prompt to the LLM with the retrieval advisor and get the response.

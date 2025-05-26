@@ -1,7 +1,7 @@
 package io.github.devcrocod.example.output
 
-import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
+import org.springframework.ai.chat.client.entity
 import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -15,9 +15,12 @@ class OutputParserController(private val chatClient: ChatClient) {
             Generate the filmography for the actor $actor.
         """.trimIndent()
 
-        val promptTemplate = PromptTemplate(userMessage, mapOf("actor" to actor))
+        val promptTemplate = PromptTemplate.builder()
+            .template(userMessage)
+            .variables(mapOf("actor" to actor))
+            .build()
         val prompt = promptTemplate.create()
-        val generation = chatClient.prompt(prompt).call().entity<ActorsFilms>(ActorsFilms::class.java)
-        return generation!!
+        val generation = chatClient.prompt(prompt).call().entity<ActorsFilms>()
+        return generation
     }
 }

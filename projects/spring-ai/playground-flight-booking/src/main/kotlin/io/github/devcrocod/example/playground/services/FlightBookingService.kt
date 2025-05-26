@@ -1,11 +1,19 @@
 package io.github.devcrocod.example.playground.services
 
-import io.github.devcrocod.example.playground.data.*
+import io.github.devcrocod.example.playground.data.Booking
+import io.github.devcrocod.example.playground.data.BookingClass
+import io.github.devcrocod.example.playground.data.BookingData
+import io.github.devcrocod.example.playground.data.BookingDetails
+import io.github.devcrocod.example.playground.data.BookingStatus
+import io.github.devcrocod.example.playground.data.Customer
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import kotlin.random.Random
 
 
+/**
+ * In-memory flight-booking “backend” with demo data and simple business rules.
+ */
 @Service
 class FlightBookingService {
     private val db: BookingData = BookingData()
@@ -14,6 +22,7 @@ class FlightBookingService {
         initDemoData()
     }
 
+    /** Populate the database with five random demo bookings. */
     private fun initDemoData() {
         val firstNames = listOf("John", "Jane", "Michael", "Sarah", "Robert")
         val lastNames = listOf("Doe", "Smith", "Johnson", "Williams", "Taylor")
@@ -31,45 +40,38 @@ class FlightBookingService {
                 bookingNumber = "10${it + 1}",
                 date = LocalDate.now().plusDays(2L * it),
                 customer = customer,
-                from = airportCodes[random.nextInt(airportCodes.size)],
-                to = airportCodes[random.nextInt(airportCodes.size)],
                 bookingStatus = BookingStatus.CONFIRMED,
-                bookingClass = BookingClass.entries[random.nextInt(BookingClass.entries.size)]
+                from = airportCodes.random(random),
+                to = airportCodes.random(random),
+                seatNumber = "${random.nextInt(19) + 1}A",
+                bookingClass = BookingClass.entries.random(random)
             )
 
             customer.bookings.add(booking)
-            customers.add(customer)
-            bookings.add(booking)
+            customers += customer
+            bookings += booking
         }
 
-        // Reset the database on each start
+        // replace the database contents on every startup
         db.customers = customers
         db.bookings = bookings
     }
 
-    fun getBookings(): List<BookingTools.BookingDetails> =
-        db.bookings.map { toBookingDetails(it) }
+    fun getBookings(): List<BookingDetails> =
+        db.bookings.map(::toBookingDetails)
 
-    private fun findBooking(bookingNumber: String, firstName: String, lastName: String): Booking =
-        db.bookings.firstOrNull {
-            it.bookingNumber.equals(bookingNumber, ignoreCase = true) &&
-                    it.customer.firstName.equals(firstName, ignoreCase = true) &&
-                    it.customer.lastName.equals(lastName, ignoreCase = true)
-        } ?: throw IllegalArgumentException("Booking not found")
-
-    fun getBookingDetails(bookingNumber: String, firstName: String, lastName: String): BookingTools.BookingDetails {
-        val booking = findBooking(bookingNumber, firstName, lastName)
-        return toBookingDetails(booking)
-    }
+    fun getBookingDetails(bookingNumber: String, firstName: String, lastName: String): BookingDetails =
+        toBookingDetails(findBooking(bookingNumber, firstName, lastName))
 
     fun changeBooking(
         bookingNumber: String, firstName: String, lastName: String,
         newDate: String, from: String, to: String
     ) {
         val booking = findBooking(bookingNumber, firstName, lastName)
-        if (booking.date.isBefore(LocalDate.now().plusDays(1))) {
-            throw IllegalArgumentException("Booking cannot be changed within 24 hours of the start date.")
+        require(booking.date.isAfter(LocalDate.now().plusDays(1))) {
+            "Booking cannot be changed within 24 hours of the start date."
         }
+
         booking.apply {
             date = LocalDate.parse(newDate)
             this.from = from
@@ -79,14 +81,27 @@ class FlightBookingService {
 
     fun cancelBooking(bookingNumber: String, firstName: String, lastName: String) {
         val booking = findBooking(bookingNumber, firstName, lastName)
-        if (booking.date.isBefore(LocalDate.now().plusDays(2))) {
-            throw IllegalArgumentException("Booking cannot be cancelled within 48 hours of the start date.")
+
+        require(booking.date.isAfter(LocalDate.now().plusDays(2))) {
+            "Booking cannot be cancelled within 48 hours of the start date."
         }
-        booking.bookingStatus = BookingStatus.CANCELED
+
+        booking.bookingStatus = BookingStatus.CANCELLED
     }
 
-    private fun toBookingDetails(booking: Booking): BookingTools.BookingDetails =
-        BookingTools.BookingDetails(
+    fun changeSeat(bookingNumber: String, firstName: String, lastName: String, seatNumber: String) {
+        findBooking(bookingNumber, firstName, lastName).seatNumber = seatNumber
+    }
+
+    private fun findBooking(bookingNumber: String, firstName: String, lastName: String): Booking =
+        db.bookings.firstOrNull {
+            it.bookingNumber.equals(bookingNumber, ignoreCase = true) &&
+                    it.customer.firstName.equals(firstName, ignoreCase = true) &&
+                    it.customer.lastName.equals(lastName, ignoreCase = true)
+        } ?: throw IllegalArgumentException("Booking not found")
+
+    private fun toBookingDetails(booking: Booking): BookingDetails =
+        BookingDetails(
             booking.bookingNumber,
             booking.customer.firstName,
             booking.customer.lastName,
@@ -94,6 +109,7 @@ class FlightBookingService {
             booking.bookingStatus,
             booking.from,
             booking.to,
+            booking.seatNumber,
             booking.bookingClass.toString()
         )
 }

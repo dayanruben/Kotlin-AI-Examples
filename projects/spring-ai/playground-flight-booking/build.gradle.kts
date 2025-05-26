@@ -1,9 +1,9 @@
 plugins {
-    kotlin("jvm") version "2.1.20-Beta1"
-    kotlin("plugin.spring") version "2.1.20-Beta1"
-    id("org.springframework.boot") version "3.3.4"
-    id("io.spring.dependency-management") version "1.1.6"
-    id("com.vaadin") version "24.4.13"
+    kotlin("jvm") version "2.1.21"
+    kotlin("plugin.spring") version "2.1.21"
+    id("org.springframework.boot") version "3.5.0"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("com.vaadin") version "24.6.5"
 }
 
 group = "io.github.devcrocod.example"
@@ -17,27 +17,45 @@ java {
 
 repositories {
     mavenCentral()
-    maven { url = uri("https://repo.spring.io/milestone") }
-    maven { url = uri("https://repo.spring.io/snapshot") }
     maven { url = uri("https://maven.vaadin.com/vaadin-prereleases") }
 }
 
-val vaadinVersion = "24.4.13"
-val springAiVersion = "1.0.0-M4"
-val coroutinesVersion = "1.9.0"
+val vaadinVersion = "24.6.5"
+val springAiVersion = "1.0.0"
+val coroutinesVersion = "1.10.2"
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter:$springAiVersion")
-    implementation("com.vaadin:vaadin-spring-boot-starter:$vaadinVersion")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation(platform("org.springframework.ai:spring-ai-bom:$springAiVersion"))
+    implementation(platform("com.vaadin:vaadin-bom:$vaadinVersion"))
+
+    /* ----------------------------- Spring AI ------------------------------ */
+    implementation("org.springframework.ai:spring-ai-starter-model-openai")
+    /* --------------------------- Vector Stores ---------------------------- */
+    implementation("org.springframework.ai:spring-ai-starter-vector-store-chroma")
+    implementation("org.springframework.ai:spring-ai-advisors-vector-store")
+
+    /* ------------------------------ Vaadin -------------------------------- */
+    implementation("com.vaadin:vaadin-spring-boot-starter")
+
+    /* --------------------------- Spring Starters -------------------------- */
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+    /* ---------------------------- Observability --------------------------- */
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
+    implementation("io.zipkin.reporter2:zipkin-reporter-brave")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+
+    /* ------------------------------ Logging ------------------------------- */
+    implementation("com.github.loki4j:loki-logback-appender:1.5.1")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
 
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-
+    /* ------------------------------ Testing ------------------------------- */
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -56,3 +74,12 @@ tasks.withType<Test> {
 vaadin {
     productionMode = project.hasProperty("production")
 }
+
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    jvmArgs(
+        "-Xdebug",
+        "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5247"
+    )
+}
+
+defaultTasks("bootRun")

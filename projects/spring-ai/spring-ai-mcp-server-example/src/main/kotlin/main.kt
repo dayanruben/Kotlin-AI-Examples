@@ -1,12 +1,12 @@
 package io.github.devcrocod.example.mcpserver
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.springframework.ai.mcp.server.McpServer
-import org.springframework.ai.mcp.server.McpServerFeatures
-import org.springframework.ai.mcp.server.McpSyncServer
-import org.springframework.ai.mcp.server.transport.HttpServletSseServerTransport
-import org.springframework.ai.mcp.server.transport.StdioServerTransport
-import org.springframework.ai.mcp.spec.McpSchema
+import io.modelcontextprotocol.server.McpServer
+import io.modelcontextprotocol.server.McpServerFeatures
+import io.modelcontextprotocol.server.McpSyncServer
+import io.modelcontextprotocol.server.transport.HttpServletSseServerTransport
+import io.modelcontextprotocol.server.transport.StdioServerTransport
+import io.modelcontextprotocol.spec.McpSchema
 
 
 fun main(args: Array<String>) {

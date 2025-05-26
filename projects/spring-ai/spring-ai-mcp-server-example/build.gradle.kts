@@ -1,8 +1,8 @@
 plugins {
-    kotlin("jvm") version "2.1.10"
-    kotlin("plugin.spring") version "2.1.10"
-    id("org.springframework.boot") version "3.3.4"
-    id("io.spring.dependency-management") version "1.1.6"
+    kotlin("jvm") version "2.1.21"
+    kotlin("plugin.spring") version "2.1.21"
+    id("org.springframework.boot") version "3.5.0"
+    id("io.spring.dependency-management") version "1.1.7"
     application
 }
 
@@ -15,13 +15,11 @@ version = "0.1.0"
 
 repositories {
     mavenCentral()
-    maven { url = uri("https://repo.spring.io/milestone") }
-    maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.experimental:mcp:0.6.0")
+    implementation("org.springframework.ai:spring-ai-mcp-server-spring-boot-starter:1.0.0-M6")
 
 }
 

@@ -1,8 +1,8 @@
 plugins {
-    kotlin("jvm") version "2.0.20"
-    kotlin("plugin.spring") version "2.0.20"
-    id("org.springframework.boot") version "3.3.4"
-    id("io.spring.dependency-management") version "1.1.6"
+    kotlin("jvm") version "2.1.21"
+    kotlin("plugin.spring") version "2.1.21"
+    id("org.springframework.boot") version "3.5.0"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 group = "io.github.devcrocod.example"
@@ -17,11 +17,9 @@ java {
 
 repositories {
     mavenCentral()
-    maven { url = uri("https://repo.spring.io/milestone") }
-    maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
-extra["springAiVersion"] = "1.0.0-M4"
+extra["springAiVersion"] = "1.0.0"
 
 dependencyManagement {
     imports {
@@ -33,7 +31,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
+    implementation("org.springframework.ai:spring-ai-starter-model-openai")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

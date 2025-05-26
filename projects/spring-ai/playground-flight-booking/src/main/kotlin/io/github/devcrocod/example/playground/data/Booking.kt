@@ -10,5 +10,6 @@ data class Booking(
     var from: String,
     var to: String,
     var bookingStatus: BookingStatus,
+    var seatNumber: String,
     var bookingClass: BookingClass,
 )

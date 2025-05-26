@@ -1,7 +1,7 @@
 plugins {
-	kotlin("jvm") version "2.1.10"
-	kotlin("plugin.spring") version "2.1.10"
-	id("org.springframework.boot") version "3.4.3"
+	kotlin("jvm") version "2.1.21"
+	kotlin("plugin.spring") version "2.1.21"
+	id("org.springframework.boot") version "3.5.0"
 	id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -18,23 +18,25 @@ repositories {
 	mavenCentral()
 }
 
-extra["springAiVersion"] = "1.0.0-M6"
+val springAiVersion = "1.0.0"
+
+dependencyManagement {
+	imports {
+		mavenBom("org.springframework.ai:spring-ai-bom:$springAiVersion")
+	}
+}
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.springframework.ai:spring-ai-qdrant-store-spring-boot-starter")
-	implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
+	implementation("org.springframework.ai:spring-ai-starter-model-openai")
+	implementation("org.springframework.ai:spring-ai-starter-vector-store-qdrant")
+	implementation("org.springframework.ai:spring-ai-advisors-vector-store")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-dependencyManagement {
-	imports {
-		mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
-	}
 }
 
 kotlin {

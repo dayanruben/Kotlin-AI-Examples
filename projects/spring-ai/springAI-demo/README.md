@@ -89,52 +89,54 @@ Your final **build.gradle.kts** file should look approximately like this:
 
 ```kotlin
 plugins {
-    kotlin("jvm") version "1.9.25"
-    kotlin("plugin.spring") version "1.9.25"
-    id("org.springframework.boot") version "3.4.3"
-    id("io.spring.dependency-management") version "1.1.7"
+	kotlin("jvm") version "2.1.21"
+	kotlin("plugin.spring") version "2.1.21"
+	id("org.springframework.boot") version "3.5.0"
+	id("io.spring.dependency-management") version "1.1.7"
 }
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
 }
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
-extra["springAiVersion"] = "1.0.0-M6"
-
-dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
-    implementation("org.springframework.ai:spring-ai-qdrant-store-spring-boot-starter")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
+val springAiVersion = "1.0.0"
 
 dependencyManagement {
-    imports {
-        mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
-    }
+	imports {
+		mavenBom("org.springframework.ai:spring-ai-bom:$springAiVersion")
+	}
+}
+
+dependencies {
+	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.springframework.ai:spring-ai-starter-model-openai")
+	implementation("org.springframework.ai:spring-ai-starter-vector-store-qdrant")
+	implementation("org.springframework.ai:spring-ai-advisors-vector-store")
+
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
-    }
+	compilerOptions {
+		freeCompilerArgs.addAll("-Xjsr305=strict")
+	}
 }
 
 tasks.withType<Test> {
-    useJUnitPlatform()
+	useJUnitPlatform()
 }
 ```
 
@@ -175,53 +177,53 @@ We will also add a similarity search to retrieve documents based on a query.
 @RestController
 @RequestMapping("/kotlin")
 class KotlinSTDController(
-    private val restTemplate: RestTemplate,
-    private val vectorStore: VectorStore,
+  private val restTemplate: RestTemplate,
+  private val vectorStore: VectorStore,
 ) {
-    private val logger = LoggerFactory.getLogger(this::class.java)
+  private val logger = LoggerFactory.getLogger(this::class.java)
 
-    @OptIn(ExperimentalUuidApi::class)
-    @PostMapping("/load-docs")
-    fun load() {
-        // List of topics to load from the Kotlin website documentation.
-        val kotlinStdTopics = listOf(
-            "collections-overview", "constructing-collections", "iterators", "ranges", "sequences",
-            "collection-operations", "collection-transformations", "collection-filtering", "collection-plus-minus",
-            "collection-grouping", "collection-parts", "collection-elements", "collection-ordering",
-            "collection-aggregate", "collection-write", "list-operations", "set-operations",
-            "map-operations", "read-standard-input", "opt-in-requirements", "scope-functions", "time-measurement",
-        )
-        // Base URL for the documents.
-        val url = "https://raw.githubusercontent.com/JetBrains/kotlin-web-site/refs/heads/master/docs/topics/"
-        // Retrieve each document from the URL and add it to the vector store.
-        kotlinStdTopics.forEach { topic ->
-            val data = restTemplate.getForObject("$url$topic.md", String::class.java)
-            data?.let { it ->
-                val doc = Document.builder()
-                    // Build a Document with a random UUID, the text content, and metadata.
-                    .id(Uuid.random().toString())
-                    .text(it)
-                    .metadata("topic", topic)
-                    .build()
-                vectorStore.add(listOf(doc))
-                logger.info("Document $topic loaded.")
-            } ?: logger.warn("Failed to load document for topic: $topic")
-        }
+  @OptIn(ExperimentalUuidApi::class)
+  @PostMapping("/load-docs")
+  fun load() {
+    // List of topics to load from the Kotlin website documentation.
+    val kotlinStdTopics = listOf(
+      "collections-overview", "constructing-collections", "iterators", "ranges", "sequences",
+      "collection-operations", "collection-transformations", "collection-filtering", "collection-plus-minus",
+      "collection-grouping", "collection-parts", "collection-elements", "collection-ordering",
+      "collection-aggregate", "collection-write", "list-operations", "set-operations",
+      "map-operations", "read-standard-input", "opt-in-requirements", "scope-functions", "time-measurement",
+    )
+    // Base URL for the documents.
+    val url = "https://raw.githubusercontent.com/JetBrains/kotlin-web-site/refs/heads/master/docs/topics/"
+    // Retrieve each document from the URL and add it to the vector store.
+    kotlinStdTopics.forEach { topic ->
+      val data = restTemplate.getForObject("$url$topic.md", String::class.java)
+      data?.let { it ->
+        val doc = Document.builder()
+          // Build a Document with a random UUID, the text content, and metadata.
+          .id(Uuid.random().toString())
+          .text(it)
+          .metadata("topic", topic)
+          .build()
+        vectorStore.add(listOf(doc))
+        logger.info("Document $topic loaded.")
+      } ?: logger.warn("Failed to load document for topic: $topic")
     }
+  }
 
-    @GetMapping("docs")
-    fun query(
-        @RequestParam query: String = "operations, filtering, and transformations",
-        @RequestParam topK: Int = 2
-    ): List<Document>? {
-        val searchRequest = SearchRequest.builder()
-            .query(query)
-            .topK(topK)
-            .build()
-        val results = vectorStore.similaritySearch(searchRequest)
-        logger.info("Found ${results?.size ?: 0} documents for query: '$query'")
-        return results
-    }
+  @GetMapping("docs")
+  fun query(
+    @RequestParam query: String = "operations, filtering, and transformations",
+    @RequestParam topK: Int = 2
+  ): List<Document>? {
+    val searchRequest = SearchRequest.builder()
+      .query(query)
+      .topK(topK)
+      .build()
+    val results = vectorStore.similaritySearch(searchRequest)
+    logger.info("Found ${results?.size ?: 0} documents for query: '$query'")
+    return results
+  }
 }
 ```
 
@@ -293,48 +295,46 @@ Next, implement the endpoint:
 @RestController
 @RequestMapping("/kotlin")
 class KotlinSTDController(
-    private val chatClientBuilder: ChatClient.Builder,
-    private val restTemplate: RestTemplate,
-    private val vectorStore: VectorStore,
+  private val chatClientBuilder: ChatClient.Builder,
+  private val restTemplate: RestTemplate,
+  private val vectorStore: VectorStore,
 ) {
-    private val logger = LoggerFactory.getLogger(this::class.java)
-    private val chatClient = chatClientBuilder.defaultAdvisors(SimpleLoggerAdvisor()).build()
-    private val rqtBuilder = RewriteQueryTransformer.builder().chatClientBuilder(chatClientBuilder)
+  private val logger = LoggerFactory.getLogger(this::class.java)
+  private val chatClient = chatClientBuilder.defaultAdvisors(SimpleLoggerAdvisor()).build()
 
-    @PostMapping("/chat/ask")
-    fun chatAsk(@RequestBody request: ChatRequest): String? {
-        // Define the prompt template with placeholders {query} and {target}.
-        val promptTemplate = PromptTemplate(
-            """
+  @PostMapping("/chat/ask")
+  fun chatAsk(@RequestBody request: ChatRequest): String? {
+    // Define the prompt template with placeholders {query} and {target}.
+    val promptTemplate = PromptTemplate(
+      """
             {query}.
-            Please provide a concise answer based on the {target} documentation.
+            Please provide a concise answer based on the "Kotlin standard library" documentation.
         """.trimIndent()
-        )
+    )
 
-        // Create the prompt by substituting placeholders with actual values.
-        val prompt: Prompt =
-            promptTemplate.create(mapOf("query" to request.query, "target" to "Kotlin standard library"))
+    // Create the prompt by substituting placeholders with actual values.
+    val prompt: Prompt =
+      promptTemplate.create(mapOf("query" to request.query))
 
-        // Configure the retrieval advisor to augment the query with relevant documents.
-        val retrievalAdvisor = RetrievalAugmentationAdvisor.builder()
-            .documentRetriever(
-                VectorStoreDocumentRetriever.builder()
-                    .similarityThreshold(0.7)
-                    .topK(request.topK)
-                    .vectorStore(vectorStore)
-                    .build()
-            )
-            .queryTransformers(rqtBuilder.promptTemplate(promptTemplate).build())
-            .build()
+    // Configure the retrieval advisor to augment the query with relevant documents.
+    val retrievalAdvisor = QuestionAnswerAdvisor.builder(vectorStore)
+      .searchRequest(
+        SearchRequest.builder()
+          .similarityThreshold(0.7)
+          .topK(request.topK)
+          .build()
+      )
+      .promptTemplate(promptTemplate)
+      .build()
 
-        // Send the prompt to the LLM with the retrieval advisor and get the response.
-        val response = chatClient.prompt(prompt)
-            .advisors(retrievalAdvisor)
-            .call()
-            .content()
-        logger.info("Chat response generated for query: '${request.query}'")
-        return response
-    }
+    // Send the prompt to the LLM with the retrieval advisor and get the response.
+    val response = chatClient.prompt(prompt)
+      .advisors(retrievalAdvisor)
+      .call()
+      .content()
+    logger.info("Chat response generated for query: '${request.query}'")
+    return response
+  }
 }
 ```
 
