@@ -7,9 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +41,7 @@ private fun getCurrentTime(): String {
     return String.format("%02d:%02d", now.hour, now.minute)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
 fun App() {
@@ -78,9 +77,8 @@ fun App() {
     }
 
     MaterialTheme(
-        colors = MaterialTheme.colors.copy(
+        colorScheme = MaterialTheme.colorScheme.copy(
             primary = DarkBlue,
-            primaryVariant = LightBlue,
             secondary = LightBlue,
             background = Color.White,
             surface = Color.White
@@ -112,8 +110,9 @@ fun App() {
                             )
                         }
                     },
-                    backgroundColor = Color.White,
-                    elevation = 4.dp
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.White
+                    )
                 )
             },
             content = { padding ->
@@ -162,7 +161,7 @@ fun App() {
                         // Input field and send button
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            elevation = 8.dp
+                            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                         ) {
                             Row(
                                 modifier = Modifier
@@ -188,7 +187,7 @@ fun App() {
                                     placeholder = { Text("Enter your query...") },
                                     enabled = !isLoading,
                                     shape = RoundedCornerShape(24.dp),
-                                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    colors = OutlinedTextFieldDefaults.colors(
                                         focusedBorderColor = DarkBlue,
                                         unfocusedBorderColor = Color.LightGray
                                     ),
@@ -211,10 +210,10 @@ fun App() {
                                         .clip(CircleShape)
                                         .background(if (query.isNotBlank()) DarkBlue else Color.LightGray)
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.Send,
-                                        contentDescription = "Send",
-                                        tint = Color.White
+                                    Text(
+                                        text = "Send",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold
                                     )
                                 }
                             }

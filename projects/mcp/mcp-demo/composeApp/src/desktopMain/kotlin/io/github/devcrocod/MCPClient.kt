@@ -59,7 +59,7 @@ class MCPClient : AutoCloseable {
     lateinit var availableTools: List<ChatCompletionTool>
 
     // Configures using the `OPENAI_API_KEY`, `OPENAI_ORG_ID` and `OPENAI_PROJECT_ID` environment variables
-    var openAiClient: OpenAIClient = OpenAIOkHttpClient.fromEnv()
+    val openAiClient: OpenAIClient = OpenAIOkHttpClient.fromEnv()
 
     val serverVersion: Implementation
         get() = mcpClient.serverVersion ?: error("Server version is not available")
