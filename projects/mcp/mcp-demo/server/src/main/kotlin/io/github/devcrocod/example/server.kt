@@ -164,7 +164,7 @@ fun configureServer(): Server {
  * and executes the appropriate tools. The server shuts down gracefully upon receiving
  * a close event.
  */
-fun `run mcp server using stdio`() {
+fun runMcpServerUsingStdio() {
     val server = configureServer()
     val transport = StdioServerTransport(
         System.`in`.asInput(),
@@ -188,7 +188,7 @@ fun `run mcp server using stdio`() {
  *
  * @param port The port number on which the SSE server should be started.
  */
-fun `run sse mcp server`(port: Int): Unit = runBlocking {
+fun runSseMcpServer(port: Int): Unit = runBlocking {
     val serverSessions = ConcurrentMap<String, ServerSession>()
 
     val server = configureServer()

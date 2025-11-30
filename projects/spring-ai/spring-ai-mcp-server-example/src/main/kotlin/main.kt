@@ -13,8 +13,8 @@ fun main(args: Array<String>) {
     val command = args.firstOrNull() ?: "--sse-server"
     val port = args.getOrNull(1)?.toIntOrNull() ?: 3001
     when (command) {
-        "--stdio" -> `run mcp server using stdio`()
-        "--sse-server" -> `run sse mcp server with plain configuration`(port)
+        "--stdio" -> runMcpServerUsingStdio()
+        "--sse-server" -> runSseMcpServerWithPlainConfiguration(port)
         else -> {
             System.err.println("Unknown command: $command")
         }
@@ -57,7 +57,7 @@ fun McpSyncServer.configureServer(): McpSyncServer {
     return this
 }
 
-fun `run mcp server using stdio`() {
+fun runMcpServerUsingStdio() {
     val server = McpServer.sync(StdioServerTransport())
         .serverInfo("mcp test server", "0.1.0")
         .capabilities(
@@ -74,7 +74,7 @@ fun `run mcp server using stdio`() {
     println("Server running on stdio")
 }
 
-fun `run sse mcp server with plain configuration`(port: Int) {
+fun runSseMcpServerWithPlainConfiguration(port: Int) {
     println("Starting SSE server on port $port.")
     println("Use inspector to connect to the http://localhost:$port/sse")
 

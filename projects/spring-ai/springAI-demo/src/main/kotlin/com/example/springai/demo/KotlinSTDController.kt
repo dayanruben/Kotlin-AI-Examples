@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.getForObject
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -51,8 +52,8 @@ class KotlinSTDController(
         val url = "https://raw.githubusercontent.com/JetBrains/kotlin-web-site/refs/heads/master/docs/topics/"
         // Retrieve each document from the URL and add it to the vector store.
         kotlinStdTopics.forEach { topic ->
-            val data = restTemplate.getForObject("$url$topic.md", String::class.java)
-            data?.let { it ->
+            val data = restTemplate.getForObject<String>("$url$topic.md")
+            data?.let {
                 val doc = Document.builder()
                     // Build a Document with a random UUID, the text content, and metadata.
                     .id(Uuid.random().toString())

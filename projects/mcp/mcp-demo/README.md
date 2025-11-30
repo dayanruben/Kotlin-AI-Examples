@@ -30,7 +30,7 @@ connect our server to Claude for Desktop, and then develop our own client using 
 [**Model Context Protocol (MCP)**](https://modelcontextprotocol.io/introduction) is a protocol that allows external
 tools (servers) to connect to LLMs (models like Claude or GPT), extending their capabilities by enabling:
 
-- Fetching **Resources** from external sources (APIs, files, etc)
+- Fetching **Resources** from external sources (APIs, files, etc.)
 - Calling functions (**Tools**) that can be written in any language and perform useful actions
 - Using predefined templates (**Prompts**) for structured interactions
 

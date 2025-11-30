@@ -1,7 +1,7 @@
 package io.github.devcrocod.example.output
 
 
-data class ActorsFilms constructor(
+data class ActorsFilms(
     val actor: String,
     val movies: List<String> // works only with jackson annotation
 ) {

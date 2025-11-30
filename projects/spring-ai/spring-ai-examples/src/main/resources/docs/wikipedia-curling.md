@@ -175,7 +175,7 @@ had a competition every day of the games. The following was the
 competition schedule for the curling competitions:
 
 |    |             |    |            |   |                    |   |       |
-| :-: | ----------- | :-: | ---------- | :-: | ------------------ | :-: | ----- |
+|:--:|-------------|:--:|------------|:-:|--------------------|:-:|-------|
 | RR | Round robin | SF | Semifinals | B | 3rd place play-off | F | Final |
 
 <table>
@@ -543,7 +543,7 @@ tournament|Standings}}
 ##### Semifinals
 
 *Thursday, 17 February, 20:05* {{\#lst:Curling at the 2022 Winter
-Olympics – Men's tournament|SF1}}  {{\#lst:Curling at the 2022 Winter
+Olympics – Men's tournament|SF1}} {{\#lst:Curling at the 2022 Winter
 Olympics – Men's tournament|SF2}}
 
 ##### Bronze medal game
@@ -575,7 +575,7 @@ tournament|Results}}
 ##### Semifinals
 
 *Friday, 18 February, 20:05* {{\#lst:Curling at the 2022 Winter Olympics
-– Women's tournament|SF1}}  {{\#lst:Curling at the 2022 Winter Olympics
+– Women's tournament|SF1}} {{\#lst:Curling at the 2022 Winter Olympics
 – Women's tournament|SF2}}
 
 ##### Bronze medal game
@@ -741,8 +741,8 @@ Olympics](Category:International_curling_competitions_hosted_by_China "wikilink"
 
 4.
 
-5.  [Rule changes
-    outlined](https://s3-eu-west-1.amazonaws.com/media.worldcurling.org/media.worldcurling.org/wcf_worldcurling/2019/09/06193637/Resolutions-put-to-the-Annual-General-Assembly-2019.pdf)
+5. [Rule changes
+   outlined](https://s3-eu-west-1.amazonaws.com/media.worldcurling.org/media.worldcurling.org/wcf_worldcurling/2019/09/06193637/Resolutions-put-to-the-Annual-General-Assembly-2019.pdf)
 
 6.
 7.
