@@ -11,4 +11,3 @@ plugins {
 }
 
 rootProject.name = "brave"
-include("app")
