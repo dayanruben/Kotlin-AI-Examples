@@ -4,20 +4,15 @@ import com.openai.client.OpenAIClient
 import com.openai.client.okhttp.OpenAIOkHttpClient
 import com.openai.core.JsonValue
 import com.openai.models.*
-import com.openai.models.chat.completions.ChatCompletionAssistantMessageParam
-import com.openai.models.chat.completions.ChatCompletionCreateParams
-import com.openai.models.chat.completions.ChatCompletionMessageParam
-import com.openai.models.chat.completions.ChatCompletionSystemMessageParam
-import com.openai.models.chat.completions.ChatCompletionTool
-import com.openai.models.chat.completions.ChatCompletionUserMessageParam
+import com.openai.models.chat.completions.*
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.sse.*
 import io.ktor.serialization.kotlinx.json.*
-import io.modelcontextprotocol.kotlin.sdk.Implementation
-import io.modelcontextprotocol.kotlin.sdk.Tool
 import io.modelcontextprotocol.kotlin.sdk.client.Client
 import io.modelcontextprotocol.kotlin.sdk.client.mcpSse
+import io.modelcontextprotocol.kotlin.sdk.types.Implementation
+import io.modelcontextprotocol.kotlin.sdk.types.Tool
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlin.jvm.optionals.getOrNull
@@ -31,7 +26,7 @@ import kotlin.jvm.optionals.getOrNull
  */
 private fun List<Tool>.toListChatCompletionTools(): List<ChatCompletionTool> {
     return this.map { tool ->
-        ChatCompletionTool.builder()
+        val functionTool = ChatCompletionFunctionTool.builder()
             .function(
                 FunctionDefinition.builder()
                     .name(tool.name)
@@ -46,6 +41,7 @@ private fun List<Tool>.toListChatCompletionTools(): List<ChatCompletionTool> {
                     .build()
             )
             .build()
+        ChatCompletionTool.ofFunction(functionTool)
     }
 }
 
@@ -86,9 +82,9 @@ class MCPClient : AutoCloseable {
         println("Connected to the MCP server: ${mcpClient.serverVersion}")
 
         // Getting a list of available tools
-        val tools = mcpClient.listTools()?.tools
-        availableTools = tools?.toListChatCompletionTools() ?: emptyList()
-        println("Available tools: ${tools?.map { it.name } ?: "No tools found"}")
+        val tools = mcpClient.listTools().tools
+        availableTools = tools.toListChatCompletionTools()
+        println("Available tools: ${tools.map { it.name }}")
     }
 
     /**
@@ -136,8 +132,9 @@ class MCPClient : AutoCloseable {
             }
             // Process any tool calls returned by the assistant
             for (toolCall in choice.message().toolCalls().getOrNull() ?: emptyList()) {
-                val toolName = toolCall.function().name()
-                val args = Json {}.decodeFromString<Map<String, String>>(toolCall.function().arguments())
+                val functionToolCall = toolCall.asFunction()
+                val toolName = functionToolCall.function().name()
+                val args = Json {}.decodeFromString<Map<String, String>>(functionToolCall.function().arguments())
 
                 // Call the MCP tool with parsed arguments
                 val result = mcpClient.callTool(toolName, args)
@@ -160,8 +157,8 @@ class MCPClient : AutoCloseable {
                             .content(
                                 """
                                     "type": "tool_result",
-                                    "tool_use_id": ${toolCall.id()},
-                                    "result": ${result?.content?.joinToString()}
+                                    "tool_use_id": ${functionToolCall.id()},
+                                    "result": ${result.content.joinToString()}
                                 """.trimIndent()
                             )
                             .build()

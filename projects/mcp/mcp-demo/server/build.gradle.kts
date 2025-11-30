@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.ktor.client.content.negotation)
     implementation(libs.ktor.serialization)
     implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.server.cio)
 }
 
 java {

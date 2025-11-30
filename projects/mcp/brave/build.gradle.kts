@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     implementation(libs.mcp.kotlin)
+    implementation(libs.ktor.server.cio)
     implementation(libs.slf4j)
 }
 

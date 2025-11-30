@@ -45,15 +45,9 @@ class Application : AppShellConfigurator {
     fun noActuatorServerObservations(): ObservationPredicate =
         ObservationPredicate { name, context ->
             if (name == "http.server.requests" && context is ServerRequestObservationContext) {
-                val uri = context.carrier.requestURI
-                uri.run {
-                    !startsWith("/actuator") &&
-                            !startsWith("/VAADIN") &&
-                            !startsWith("/HILLA") &&
-                            !startsWith("/connect") &&
-                            !startsWith("/**") &&
-                            !equals("/", ignoreCase = true)
-                }
+                val uri = context.carrier?.requestURI ?: return@ObservationPredicate true
+                val excludedPrefixes = listOf("/actuator", "/VAADIN", "/HILLA", "/connect", "/**")
+                excludedPrefixes.none { uri.startsWith(it) } && !uri.equals("/", ignoreCase = true)
             } else {
                 true
             }

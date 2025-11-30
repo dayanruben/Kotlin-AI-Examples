@@ -4,10 +4,12 @@
 [versions]
 kotlin = "2.2.21"
 mcp = "0.8.0"
+ktor = "3.3.3"
 slf4j = "2.0.9"
 
 [libraries]
 mcp-kotlin = { group = "io.modelcontextprotocol", name = "kotlin-sdk", version.ref = "mcp" }
+ktor-server-cio = { group = "io.ktor", name = "ktor-server-cio", version.ref = "ktor" }
 slf4j = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j"}
 
 [plugins]

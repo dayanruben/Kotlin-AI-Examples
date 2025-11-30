@@ -9,15 +9,13 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.util.collections.*
 import io.ktor.utils.io.streams.*
-import io.modelcontextprotocol.kotlin.sdk.*
-import io.modelcontextprotocol.kotlin.sdk.server.Server
-import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
-import io.modelcontextprotocol.kotlin.sdk.server.SseServerTransport
-import io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport
+import io.modelcontextprotocol.kotlin.sdk.server.*
+import io.modelcontextprotocol.kotlin.sdk.types.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.asSink
@@ -75,17 +73,14 @@ fun configureServer(): Server {
             For example, an investor may want to use the full-quote quote endpoint to get a sense of what a stock is trading at before placing a trade.
             Or, an investor may want to use the full-quote quote endpoint to track the performance of a stock over time.
         """.trimIndent(),
-        inputSchema = Tool.Input(
+        inputSchema = ToolSchema(
             properties = JsonObject(mapOf("symbol" to JsonPrimitive("string"))),
             required = listOf("symbol")
         )
     ) { request ->
-        val symbol = request.arguments["symbol"]
-        if (symbol == null) {
-            return@addTool CallToolResult(
-                content = listOf(TextContent("The 'symbol' parameter is required."))
-            )
-        }
+        val symbol = request.arguments?.get("symbol") ?: return@addTool CallToolResult(
+            content = listOf(TextContent("The 'symbol' parameter is required."))
+        )
         val price = httpClient.getCurrentPrice(symbol.jsonPrimitive.content)
         if (price != null) {
             CallToolResult(
@@ -119,7 +114,7 @@ fun configureServer(): Server {
             For example, an investor might look for stocks that are in an uptrend or a downtrend.
             Investors can also use the FMP Daily Chart endpoint to identify support and resistance levels.
         """.trimIndent(),
-        inputSchema = Tool.Input(
+        inputSchema = ToolSchema(
             properties = JsonObject(
                 mapOf(
                     "symbol" to JsonPrimitive("string"),
@@ -130,9 +125,9 @@ fun configureServer(): Server {
             required = listOf("symbol")
         )
     ) { request ->
-        val symbol = request.arguments["symbol"]
-        val from = request.arguments["from"]?.jsonPrimitive?.contentOrNull
-        val to = request.arguments["to"]?.jsonPrimitive?.contentOrNull
+        val symbol = request.arguments?.get("symbol")
+        val from = request.arguments?.get("from")?.jsonPrimitive?.contentOrNull
+        val to = request.arguments?.get("to")?.jsonPrimitive?.contentOrNull
         if (symbol == null) {
             return@addTool CallToolResult(
                 content = listOf(TextContent("The 'symbol' parameter is required."))
@@ -177,7 +172,7 @@ fun `run mcp server using stdio`() {
     )
 
     runBlocking {
-        server.connect(transport)
+        server.createSession(transport)
         val done = Job()
         server.onClose {
             done.complete()
@@ -194,28 +189,32 @@ fun `run mcp server using stdio`() {
  * @param port The port number on which the SSE server should be started.
  */
 fun `run sse mcp server`(port: Int): Unit = runBlocking {
-    val servers = ConcurrentMap<String, Server>()
+    val serverSessions = ConcurrentMap<String, ServerSession>()
 
     val server = configureServer()
-    embeddedServer(CIO, host = "0.0.0.0", port = port) {
+
+    embeddedServer(CIO, host = "127.0.0.1", port = port) {
         install(SSE)
         routing {
             sse("/sse") {
                 val transport = SseServerTransport("/message", this)
-
-                servers[transport.sessionId] = server
+                val serverSession = server.createSession(transport)
+                serverSessions[transport.sessionId] = serverSession
 
                 server.onClose {
-                    servers.remove(transport.sessionId)
+                    serverSessions.remove(transport.sessionId)
                 }
-
-                server.connect(transport)
             }
             post("/message") {
-                val sessionId: String = call.request.queryParameters["sessionId"]!!
-                val transport = servers[sessionId]?.transport as? SseServerTransport
+                val sessionId = call.request.queryParameters["sessionId"]
+                if (sessionId == null) {
+                    call.respond(HttpStatusCode.BadRequest, "Missing sessionId parameter")
+                    return@post
+                }
+
+                val transport = serverSessions[sessionId]?.transport as? SseServerTransport
                 if (transport == null) {
-                    call.respond("Session not found", null)
+                    call.respond(HttpStatusCode.NotFound, "Session not found")
                     return@post
                 }
 

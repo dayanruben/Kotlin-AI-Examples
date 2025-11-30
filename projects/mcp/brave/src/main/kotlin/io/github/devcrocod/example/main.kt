@@ -1,15 +1,14 @@
 package io.github.devcrocod.example
 
-import io.ktor.server.application.Application
-import io.ktor.server.cio.CIO
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.request.receiveText
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
-import io.modelcontextprotocol.kotlin.sdk.Implementation
+import io.ktor.server.application.*
+import io.ktor.server.cio.*
+import io.ktor.server.engine.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.modelcontextprotocol.kotlin.sdk.client.Client
 import io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport
+import io.modelcontextprotocol.kotlin.sdk.types.Implementation
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.asSink
 import kotlinx.io.asSource
@@ -58,7 +57,7 @@ fun Application.module() {
             logger.info("The following question has been received: $question")
 
             // Request a list of available tools from the server.
-            val tools = runBlocking { client.listTools()?.tools } ?: emptyList()
+            val tools = client.listTools().tools
             if (tools.isEmpty()) {
                 call.respondText("Tools not found")
                 return@post
@@ -68,8 +67,8 @@ fun Application.module() {
             val toolName = tools.first().name
 
             // Call the tool, passing the "query" field with the question text as an argument
-            val toolResult = runBlocking { client.callTool(toolName, mapOf("query" to question)) }
-            val resultContent = toolResult?.content?.toString() ?: "No result"
+            val toolResult = client.callTool(toolName, mapOf("query" to question))
+            val resultContent = toolResult.content.toString()
 
             // Returning the result to the client
             call.respondText(resultContent)
