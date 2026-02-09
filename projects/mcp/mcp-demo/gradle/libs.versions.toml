@@ -1,14 +1,14 @@
 [versions]
 androidx-lifecycle = "2.9.0"
-compose-multiplatform = "1.9.3"
+compose-multiplatform = "1.10.0"
 junit = "4.13.2"
-kotlin = "2.3.0"
+kotlin = "2.3.10"
 kotlinx-coroutines = "1.10.2"
-mcp = "0.8.0"
+mcp = "0.8.3"
 slf4j = "2.0.17"
-ktor = "3.3.3"
+ktor = "3.4.0"
 shadow = "9.3.0"
-openai = "4.8.0"
+openai = "4.17.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

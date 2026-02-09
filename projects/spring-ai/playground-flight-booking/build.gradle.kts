@@ -1,9 +1,9 @@
 plugins {
-    kotlin("jvm") version "2.2.21"
-    kotlin("plugin.spring") version "2.3.0"
+    kotlin("jvm") version "2.3.10"
+    kotlin("plugin.spring") version "2.3.10"
     id("org.springframework.boot") version "4.0.0"
     id("io.spring.dependency-management") version "1.1.7"
-    id("com.vaadin") version "24.9.6"
+    id("com.vaadin") version "25.0.4"
 }
 
 group = "io.github.devcrocod.example"
@@ -20,7 +20,7 @@ repositories {
     maven { url = uri("https://maven.vaadin.com/vaadin-prereleases") }
 }
 
-val vaadinVersion = "24.9.6"
+val vaadinVersion = "25.0.4"
 val springAiVersion = "1.1.0"
 val coroutinesVersion = "1.10.2"
 
@@ -37,6 +37,7 @@ dependencies {
 
     /* ------------------------------ Vaadin -------------------------------- */
     implementation("com.vaadin:vaadin-spring-boot-starter")
+    implementation("com.vaadin:hilla-spring-boot-starter")
 
     /* --------------------------- Spring Starters -------------------------- */
     implementation("org.springframework.boot:spring-boot-starter-webflux")
